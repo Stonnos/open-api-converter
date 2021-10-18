@@ -78,6 +78,7 @@ public interface OpenApiMapper {
     @Mapping(source = "enums", target = "enumValues")
     @Mapping(source = "ref", target = "objectTypeRef", qualifiedByName = "mapRef")
     @Mapping(source = "items.ref", target = "itemsObjectRef", qualifiedByName = "mapRef")
+    @Mapping(source = "items.type", target = "itemsSimpleType")
     SchemaReport map(Schema schema);
 
     /**

@@ -277,6 +277,9 @@ __(${field.schema.format})__
 <#if field.schema.itemsObjectRef??>
 <<<${field.schema.itemsObjectRef}>>>
 </#if>
+<#if field.schema.itemsSimpleType??>
+<<<${field.schema.itemsSimpleType}>>>
+</#if>
 </#if>
 <#if field.schema.objectTypeRef??>
 <<${field.schema.objectTypeRef}>>

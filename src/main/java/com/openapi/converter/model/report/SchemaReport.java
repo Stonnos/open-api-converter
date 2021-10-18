@@ -73,6 +73,10 @@ public class SchemaReport {
      */
     private String itemsObjectRef;
     /**
+     * Array item simple type
+     */
+    private String itemsSimpleType;
+    /**
      * Subclasses references
      */
     private List<String> oneOfRefs;
