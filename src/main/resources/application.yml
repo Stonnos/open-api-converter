@@ -1,0 +1,4 @@
+app:
+  templateLocation: classpath:templates/template.adoc
+server:
+  port: 8094

@@ -1,0 +1,31 @@
+= OPEN API CONVERTER
+:toc: macro
+
+== Введение
+
+Модуль предоставляет API для конвертации файлов Open API json версии 3.x в формат adoc.
+
+== Необходмый софт
+
+* Openjdk 1.11
+* maven >= 3.6
+
+== Описание ключевой конфигурации модуля
+
+Настройки проекта находятся в файле application.yml
+
+* app.templateLocation - путь к файлу с шаблоном отчета в формате adoc
+
+== Инструкция по запуску
+
+1. Собрать проект с помощью системы сборки проекта maven. Ниже приведен пример команды:
+
+   mvn clean install
+
+2. Запустить проект с помощью команды:
+
+   java -jar target/open-api-converter.war
+
+3. Страница со swagger-ui находится по адресу:
+
+   http://[host]:[port]/swagger-ui.html
