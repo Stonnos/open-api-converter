@@ -1,0 +1,51 @@
+<#if schema.type??>
+__${schema.type}__
+<#if schema.format??>
+__(${schema.format})__
+</#if>
+<#if schema.itemsObjectRef??>
+<<<${schema.itemsObjectRef}>>>
+</#if>
+<#if schema.itemsSimpleType??>
+<${schema.itemsSimpleType}>
+</#if>
+</#if>
+<#if schema.objectTypeRef??>
+<<${schema.objectTypeRef}>>
+</#if>
+
+<#if schema.oneOfRefs?has_content>
+
+*One of types:*
+<#list schema.oneOfRefs as oneOfRef>
+
+<#if oneOfRef??>* <<${oneOfRef}>></#if>
+</#list>
+</#if>
+
+<#if schema.minLength??>*Min. length*: ${schema.minLength}</#if>
+
+<#if schema.maxLength??>*Max. length*: ${schema.maxLength}</#if>
+
+<#if schema.minimum??>
+*Minimum*: ${schema.minimum}<#if !schema.exclusiveMinimum>*</#if>
+</#if>
+
+<#if schema.maximum??>
+*Maximum*: ${schema.maximum}<#if !schema.exclusiveMaximum>*</#if>
+</#if>
+
+<#if schema.minItems??>*Min. items*: ${schema.minItems}</#if>
+
+<#if schema.maxItems??>*Max. items*: ${schema.maxItems}</#if>
+
+<#if schema.pattern??>*Pattern*: `${schema.pattern}`</#if>
+
+
+<#if schema.enumValues?has_content>
+*Values*:
+<#list schema.enumValues as enumValue>
+
+* <#if enumValue??>${enumValue}</#if>
+</#list>
+</#if>

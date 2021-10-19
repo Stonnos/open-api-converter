@@ -7,39 +7,8 @@
 |*${(parameter.name)!"-"}*<#if parameter.required>*</#if>
 |${(parameter.description)!"-"}
 |${(parameter.in)!"-"}
-a|__${(parameter.schema.type)!"unknown type"}__
-<#if parameter.schema.format??>
-__(${parameter.schema.format})__
-</#if>
-<#if parameter.schema.itemsObjectRef??>
-<<<${parameter.schema.itemsObjectRef}>>>
-</#if>
-
-<#if parameter.schema.minLength??>*Min. length*: ${parameter.schema.minLength}</#if>
-
-<#if parameter.schema.maxLength??>*Max. length*: ${parameter.schema.maxLength}</#if>
-
-<#if parameter.schema.minimum??>
-*Minimum*: ${parameter.schema.minimum}<#if !parameter.schema.exclusiveMinimum>*</#if>
-</#if>
-
-<#if parameter.schema.maximum??>
-*Maximum*: ${parameter.schema.maximum}<#if !parameter.schema.exclusiveMaximum>*</#if>
-</#if>
-
-<#if parameter.schema.minItems??>*Min. items*: ${parameter.schema.minItems}</#if>
-
-<#if parameter.schema.maxItems??>*Max. items*: ${parameter.schema.maxItems}</#if>
-
-<#if parameter.schema.pattern??>*Pattern*: `${parameter.schema.pattern}`</#if>
-
-<#if parameter.schema.enumValues?has_content>
-*Values*:
-<#list parameter.schema.enumValues as enumValue>
-
-* <#if enumValue??>${enumValue}</#if>
-</#list>
-</#if>
+a|<#assign schema = parameter.schema>
+<#include "schema-template.adoc">
 </#list>
 |===
 </#if>

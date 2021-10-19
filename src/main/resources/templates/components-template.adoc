@@ -11,57 +11,8 @@
 <#list component.fields as field>
 |*${(field.fieldName)!"-"}*<#if field.required>*</#if>
 |${(field.description)!"-"}
-a|<#if field.schema.type??>
-__${field.schema.type}__
-<#if field.schema.format??>
-__(${field.schema.format})__
-</#if>
-<#if field.schema.itemsObjectRef??>
-<<<${field.schema.itemsObjectRef}>>>
-</#if>
-<#if field.schema.itemsSimpleType??>
-<${field.schema.itemsSimpleType}>
-</#if>
-</#if>
-<#if field.schema.objectTypeRef??>
-<<${field.schema.objectTypeRef}>>
-</#if>
-
-<#if field.schema.oneOfRefs?has_content>
-
-*One of types:*
-<#list field.schema.oneOfRefs as oneOfRef>
-
-<#if oneOfRef??>* <<${oneOfRef}>></#if>
-</#list>
-</#if>
-
-<#if field.schema.minLength??>*Min. length*: ${field.schema.minLength}</#if>
-
-<#if field.schema.maxLength??>*Max. length*: ${field.schema.maxLength}</#if>
-
-<#if field.schema.minimum??>
-*Minimum*: ${field.schema.minimum}<#if !field.schema.exclusiveMinimum>*</#if>
-</#if>
-
-<#if field.schema.maximum??>
-*Maximum*: ${field.schema.maximum}<#if !field.schema.exclusiveMaximum>*</#if>
-</#if>
-
-<#if field.schema.minItems??>*Min. items*: ${field.schema.minItems}</#if>
-
-<#if field.schema.maxItems??>*Max. items*: ${field.schema.maxItems}</#if>
-
-<#if field.schema.pattern??>*Pattern*: `${field.schema.pattern}`</#if>
-
-
-<#if field.schema.enumValues?has_content>
-*Values*:
-<#list field.schema.enumValues as enumValue>
-
-* <#if enumValue??>${enumValue}</#if>
-</#list>
-</#if>
+a|<#assign schema = field.schema>
+<#include "schema-template.adoc">
 </#list>
 |===
 </#if>
