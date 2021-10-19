@@ -69,15 +69,11 @@ public class SchemaReport {
      */
     private List<String> enumValues;
     /**
-     * Array item dto reference
-     */
-    private String itemsObjectRef;
-    /**
-     * Array item simple type
-     */
-    private String itemsSimpleType;
-    /**
      * Subclasses references
      */
     private List<String> oneOfRefs;
+    /**
+     * Items reports
+     */
+    private List<SchemaReport> itemsReport;
 }

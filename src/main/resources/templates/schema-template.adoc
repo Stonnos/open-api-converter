@@ -1,17 +1,27 @@
 <#if schema.type??>
 __${schema.type}__
+</#if>
 <#if schema.format??>
 __(${schema.format})__
 </#if>
-<#if schema.itemsObjectRef??>
-<<<${schema.itemsObjectRef}>>>
-</#if>
-<#if schema.itemsSimpleType??>
-<${schema.itemsSimpleType}>
-</#if>
-</#if>
 <#if schema.objectTypeRef??>
 <<${schema.objectTypeRef}>>
+</#if>
+<#if schema.itemsReport?has_content>
+<#list schema.itemsReport as item>
+<#if item.objectTypeRef??>
+<<<${item.objectTypeRef}>>
+</#if>
+<#if item.type??>
+<${item.type}
+</#if>
+<#if item.format??>
+__(${item.format})__
+</#if>
+<#if item?is_last>
+<#list 1..schema.itemsReport?size as i>></#list>
+</#if>
+</#list>
 </#if>
 
 <#if schema.oneOfRefs?has_content>

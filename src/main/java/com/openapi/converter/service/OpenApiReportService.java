@@ -203,13 +203,26 @@ public class OpenApiReportService {
     private FieldReport buildFieldModel(String fieldName, boolean required, Schema schema) {
         SchemaReport schemaReport = openApiMapper.map(schema);
         var oneOfRefs = buildOneOfRefs(schema);
+        var itemsReport = buildSchemaItems(schema);
         schemaReport.setOneOfRefs(oneOfRefs);
+        schemaReport.setItemsReport(itemsReport);
         return FieldReport.builder()
                 .fieldName(fieldName)
                 .description(schemaReport.getDescription())
                 .required(required)
                 .schema(schemaReport)
                 .build();
+    }
+
+    private List<SchemaReport> buildSchemaItems(Schema schema) {
+        List<SchemaReport> schemaItemsReports = newArrayList();
+        Schema items = schema.getItems();
+        while (items != null) {
+            var itemsReport = openApiMapper.map(items);
+            schemaItemsReports.add(itemsReport);
+            items = items.getItems();
+        }
+        return schemaItemsReports;
     }
 
     private MethodInfo buildMethodInfo(Map.Entry<String, PathItem> entry) {
