@@ -7,13 +7,11 @@
 |${(apiResponse.responseCode)!"-"}
 |${(apiResponse.description)!"-"}
 |*${(apiResponse.contentType)!"-"}*
-|<#if apiResponse.objectTypeRef??><<${apiResponse.objectTypeRef}>>
-<#else>
-<#if apiResponse.itemsObjectRef??>
-__array__<<<${apiResponse.itemsObjectRef}>>>
+|<#if apiResponse.schema??>
+<#assign schema = apiResponse.schema>
+<#include "schema-template.adoc">
 <#else>
 -
-</#if>
 </#if>
 a|
 <#if apiResponse.example??>

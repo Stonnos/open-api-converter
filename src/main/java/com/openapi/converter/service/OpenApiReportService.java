@@ -201,17 +201,25 @@ public class OpenApiReportService {
     }
 
     private FieldReport buildFieldModel(String fieldName, boolean required, Schema schema) {
-        SchemaReport schemaReport = openApiMapper.map(schema);
-        var oneOfRefs = buildOneOfRefs(schema);
-        var itemsReport = buildSchemaItems(schema);
-        schemaReport.setOneOfRefs(oneOfRefs);
-        schemaReport.setItemsReport(itemsReport);
+        SchemaReport schemaReport = buildSchemaReport(schema);
         return FieldReport.builder()
                 .fieldName(fieldName)
                 .description(schemaReport.getDescription())
                 .required(required)
                 .schema(schemaReport)
                 .build();
+    }
+
+    private SchemaReport buildSchemaReport(Schema schema) {
+        return Optional.ofNullable(schema)
+                .map(s -> {
+                    SchemaReport schemaReport = openApiMapper.map(s);
+                    var oneOfRefs = buildOneOfRefs(schema);
+                    var itemsReport = buildSchemaItems(schema);
+                    schemaReport.setOneOfRefs(oneOfRefs);
+                    schemaReport.setItemsReport(itemsReport);
+                    return schemaReport;
+                }).orElse(null);
     }
 
     private List<SchemaReport> buildSchemaItems(Schema schema) {
@@ -313,10 +321,8 @@ public class OpenApiReportService {
             var schema = mediaType.getValue().getSchema();
             apiResponseReport.setContentType(mediaType.getKey());
             apiResponseReport.setExample(getExample(mediaType.getValue()));
-            apiResponseReport.setObjectTypeRef(getBodyRef(schema));
-            if (Optional.ofNullable(schema).map(Schema::getItems).isPresent()) {
-                apiResponseReport.setItemsObjectRef(getBodyRef(schema.getItems()));
-            }
+            var schemaReport = buildSchemaReport(schema);
+            apiResponseReport.setSchema(schemaReport);
         }
         return apiResponseReport;
     }

@@ -27,11 +27,7 @@ public class ApiResponseReport {
      */
     private String example;
     /**
-     * Dto reference
+     * Schema report
      */
-    private String objectTypeRef;
-    /**
-     * Array item dto reference
-     */
-    private String itemsObjectRef;
+    private SchemaReport schema;
 }
