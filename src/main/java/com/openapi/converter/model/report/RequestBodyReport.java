@@ -20,13 +20,9 @@ public class RequestBodyReport {
      */
     private String required;
     /**
-     * Dto reference
+     * Schema report
      */
-    private String bodyRef;
-    /**
-     * References for sub classes
-     */
-    private List<String> oneOfRefs;
+    private SchemaReport schema;
     /**
      * Example value
      */

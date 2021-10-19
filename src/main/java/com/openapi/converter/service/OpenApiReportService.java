@@ -291,9 +291,9 @@ public class OpenApiReportService {
                     if (!CollectionUtils.isEmpty(requestBody.getContent())) {
                         var mediaType = requestBody.getContent().entrySet().iterator().next();
                         var schema = mediaType.getValue().getSchema();
+                        var schemaReport = buildSchemaReport(schema);
                         requestBodyReport.setContentType(mediaType.getKey());
-                        requestBodyReport.setBodyRef(getBodyRef(schema));
-                        requestBodyReport.setOneOfRefs(buildOneOfRefs(schema));
+                        requestBodyReport.setSchema(schemaReport);
                         var schemaReports = buildFieldReports(schema, Collections.emptyMap());
                         requestBodyReport.setSchemaProperties(schemaReports);
                         requestBodyReport.setExample(getExample(mediaType.getValue()));
