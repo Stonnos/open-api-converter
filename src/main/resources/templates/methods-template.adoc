@@ -1,0 +1,35 @@
+<#list openApi.methods as method>
+== ${(method.description)!"API method"}
+
+__${method.requestType}__ *${method.endpoint}* <#if method.summary??>- ${method.summary}</#if>
+
+<#if method.security?has_content>
+*Security requirement*
+
+[cols="^50%,^50%",options="header"]
+|===
+|*Name*|*Scopes*
+<#list method.security as security>
+|<#if security.name??>
+<<${security.name}>>
+<#else>
+-
+</#if>
+a|<#if security.scopes?has_content>
+<#list security.scopes as scope>
+
+<#if scope??>* ${scope}</#if>
+</#list>
+</#if>
+</#list>
+
+|===
+</#if>
+
+<#include "request-body-template.adoc">
+
+<#include "request-parameters-template.adoc">
+
+<#include "api-responses-template.adoc">
+
+</#list>

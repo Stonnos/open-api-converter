@@ -1,0 +1,79 @@
+<#if method.requestBody??>
+*Request body*
+
+[width=100%]
+|===
+|*Content type*|*Required*|*Schema*|*Example*
+|*${(method.requestBody.contentType)!"-"}*
+|${(method.requestBody.required)!"-"}
+|<#if method.requestBody.bodyRef??><<${method.requestBody.bodyRef}>><#else>-</#if>
+<#if method.requestBody.oneOfRefs?has_content>
+
+*One of types:*
+<#list method.requestBody.oneOfRefs as oneOfRef>
+
+<#if oneOfRef??>* <<${oneOfRef}>></#if>
+</#list>
+</#if>
+a|
+<#if method.requestBody.example??>
+[source,json]
+----
+${method.requestBody.example}
+----
+<#else>
+-
+</#if>
+|===
+
+<#if method.requestBody.schemaProperties?has_content>
+*Multipart form data fields*
+
+[width=100%]
+|===
+|*Name*|*Description*|*Schema*
+<#list method.requestBody.schemaProperties as field>
+|*${(field.fieldName)!"-"}*<#if field.required>*</#if>
+|${(field.description)!"-"}
+a|<#if field.schema.type??>
+__${field.schema.type}__
+<#if field.schema.format??>
+__(${field.schema.format})__
+</#if>
+<#if field.schema.itemsObjectRef??>
+<<<${field.schema.itemsObjectRef}>>>
+</#if>
+</#if>
+<#if field.schema.objectTypeRef??>
+<<${field.schema.objectTypeRef}>>
+</#if>
+
+<#if field.schema.minLength??>*Min. length*: ${field.schema.minLength}</#if>
+
+<#if field.schema.maxLength??>*Max. length*: ${field.schema.maxLength}</#if>
+
+<#if field.schema.minimum??>
+*Minimum*: ${field.schema.minimum}<#if !field.schema.exclusiveMinimum>*</#if>
+</#if>
+
+<#if field.schema.maximum??>
+*Maximum*: ${field.schema.maximum}<#if !field.schema.exclusiveMaximum>*</#if>
+</#if>
+
+<#if field.schema.minItems??>*Min. items*: ${field.schema.minItems}</#if>
+
+<#if field.schema.maxItems??>*Max. items*: ${field.schema.maxItems}</#if>
+
+<#if field.schema.pattern??>*Pattern*: `${field.schema.pattern}`</#if>
+
+<#if field.schema.enumValues?has_content>
+*Values*:
+<#list field.schema.enumValues as enumValue>
+
+* <#if enumValue??>${enumValue}</#if>
+</#list>
+</#if>
+</#list>
+|===
+</#if>
+</#if>

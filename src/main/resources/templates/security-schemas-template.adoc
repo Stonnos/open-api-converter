@@ -1,0 +1,53 @@
+<#if openApi.securitySchemes?has_content>
+== Security schemas
+
+<#list openApi.securitySchemes as securityScheme>
+
+=== ${(securityScheme.name)!"Unknown schema"}
+
+[width=100%]
+|===
+|*Type*|*Description*|*Flows*
+|*${(securityScheme.type)!"-"}*
+|<#if securityScheme.description??>${securityScheme.description}</#if>
+
+<#if securityScheme.in??>
+*Client credentials location:* __${securityScheme.in}__
+</#if>
+
+<#if securityScheme.bearerFormat??>
+*Bearer format:* __${securityScheme.bearerFormat}__
+</#if>
+a|<#if securityScheme.oauth2Flows?has_content>
+<#list securityScheme.oauth2Flows as flow>
+
+*Flow*
+
+__Grant type:__ ${(flow.grantType)!"-"}
+
+<#if flow.tokenUrl??>
+__Token url:__ ${flow.tokenUrl}
+</#if>
+
+<#if flow.refreshUrl??>
+__Refresh token url:__ ${flow.refreshUrl}
+</#if>
+
+<#if flow.authorizationUrl??>
+__Authorization url:__ ${flow.authorizationUrl}
+</#if>
+
+<#if flow.scopes?has_content>
+__Scopes__:
+
+<#list flow.scopes as scope>
+
+<#if scope??>* ${scope}</#if>
+</#list>
+</#if>
+
+</#list>
+</#if>
+|===
+</#list>
+</#if>
