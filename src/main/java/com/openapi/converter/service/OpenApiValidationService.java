@@ -15,12 +15,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -112,19 +114,37 @@ public class OpenApiValidationService {
         return validationResults;
     }
 
-    private long countBySeverity(List<ValidationResult> validationResults, Severity severity) {
-        return validationResults.stream()
-                .filter(validationResult -> severity.equals(validationResult.getSeverity()))
-                .count();
-    }
-
-    private void printValidationResults(String title, List<ValidationResult> validationResults) {
-        log.info("Open api [{}] validation results:", title);
-        log.info("[{}] CRITICAL severities", countBySeverity(validationResults, Severity.CRITICAL));
-        log.info("[{}] MAJOR severities", countBySeverity(validationResults, Severity.MAJOR));
-        log.info("[{}] MINOR severities", countBySeverity(validationResults, Severity.MINOR));
-        log.info("[{}] INFO severities", countBySeverity(validationResults, Severity.INFO));
-        validationResults.forEach(validationResult -> log.info("Validation result: {}", validationResult));
+    private List<ValidationResult> validateRequestBody(OpenAPI openAPI, String path, Operation operation) {
+        List<ValidationResult> validationResults = newArrayList();
+        var requestBody = operation.getRequestBody();
+        if (requestBody != null && !CollectionUtils.isEmpty(requestBody.getContent())) {
+            var mediaType = requestBody.getContent().entrySet().iterator().next();
+            var schema = mediaType.getValue().getSchema();
+            if (StringUtils.isNotEmpty(schema.getRef())) {
+                Schema foundSchema = getSchemaByRef(openAPI, schema.getRef());
+                if (foundSchema != null && !CollectionUtils.isEmpty(foundSchema.getProperties())) {
+                    foundSchema.getProperties().forEach((fieldName, schemaVal) -> validationResults.addAll(
+                            validateSchema(path, fieldName, schemaVal)));
+                }
+            }
+            if (!CollectionUtils.isEmpty(schema.getProperties())) {
+                schema.getProperties().forEach((fieldName, schemaVal) -> validationResults.addAll(
+                        validateSchema(path, fieldName, schemaVal)));
+            }
+            if (!MediaType.MULTIPART_FORM_DATA_VALUE.equals(mediaType.getKey()) &&
+                    mediaType.getValue().getExample() == null) {
+                validationResults.add(
+                        ValidationResult.builder()
+                                .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
+                                .severity(Severity.INFO)
+                                .path(path)
+                                .schemaRef(schema.getRef())
+                                .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
+                                .build()
+                );
+            }
+        }
+        return validationResults;
     }
 
     private List<ValidationResult> validatePaths(OpenAPI openAPI) {
@@ -136,6 +156,7 @@ public class OpenApiValidationService {
                             String.format("Can't handle operation for endpoint [%s]", path)));
             var operation = operationModel.getOperation();
             validationResults.addAll(validateOperation(path, operation));
+            validationResults.addAll(validateRequestBody(openAPI, path, operation));
         });
         return validationResults;
     }
@@ -194,22 +215,35 @@ public class OpenApiValidationService {
                     );
                 }
                 if (parameter.getSchema() != null) {
-                    validationResults.addAll(validateParameterSchema(path, parameter.getName(), parameter.getSchema()));
+                    validationResults.addAll(validateSchema(path, parameter.getName(), parameter.getSchema()));
                 }
             });
         }
         return validationResults;
     }
 
-    private List<ValidationResult> validateParameterSchema(String path, String parameterName, Schema schema) {
+    private Schema getSchemaByRef(OpenAPI openAPI, String ref) {
+        if (openAPI.getComponents() == null || CollectionUtils.isEmpty(openAPI.getComponents().getSchemas())) {
+            return null;
+        }
+        return openAPI.getComponents().getSchemas().entrySet()
+                .stream()
+                .filter(entry -> ref.equals(entry.getKey()))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
+    private List<ValidationResult> validateSchema(String path, String field, Schema schema) {
         List<ValidationResult> validationResults = newArrayList();
         if (INTEGER_TYPE.equals(schema.getType()) && schema.getMaximum() == null) {
             validationResults.add(
                     ValidationResult.builder()
                             .rule(Rule.REQUEST_PARAMETER_MAXIMUM_REQUIRED)
                             .severity(Severity.CRITICAL)
+                            .schemaRef(schema.getRef())
                             .path(path)
-                            .field(parameterName)
+                            .field(field)
                             .message(Rule.REQUEST_PARAMETER_MAXIMUM_REQUIRED.getMessage())
                             .build()
             );
@@ -219,8 +253,9 @@ public class OpenApiValidationService {
                     ValidationResult.builder()
                             .rule(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED)
                             .severity(Severity.CRITICAL)
+                            .schemaRef(schema.getRef())
                             .path(path)
-                            .field(parameterName)
+                            .field(field)
                             .message(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED.getMessage())
                             .build()
             );
@@ -230,8 +265,9 @@ public class OpenApiValidationService {
                     ValidationResult.builder()
                             .rule(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED)
                             .severity(Severity.CRITICAL)
+                            .schemaRef(schema.getRef())
                             .path(path)
-                            .field(parameterName)
+                            .field(field)
                             .message(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED.getMessage())
                             .build()
             );
@@ -263,5 +299,20 @@ public class OpenApiValidationService {
                         .requestMethod(requestMethod)
                         .build()
                 ).orElse(null);
+    }
+
+    private long countBySeverity(List<ValidationResult> validationResults, Severity severity) {
+        return validationResults.stream()
+                .filter(validationResult -> severity.equals(validationResult.getSeverity()))
+                .count();
+    }
+
+    private void printValidationResults(String title, List<ValidationResult> validationResults) {
+        log.info("Open api [{}] validation results:", title);
+        log.info("[{}] CRITICAL severities", countBySeverity(validationResults, Severity.CRITICAL));
+        log.info("[{}] MAJOR severities", countBySeverity(validationResults, Severity.MAJOR));
+        log.info("[{}] MINOR severities", countBySeverity(validationResults, Severity.MINOR));
+        log.info("[{}] INFO severities", countBySeverity(validationResults, Severity.INFO));
+        validationResults.forEach(validationResult -> log.info("Validation result: {}", validationResult));
     }
 }
