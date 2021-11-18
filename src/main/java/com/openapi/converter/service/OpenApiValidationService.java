@@ -65,14 +65,12 @@ public class OpenApiValidationService {
     }
 
     private void printValidationResults(String title, List<ValidationResult> validationResults) {
-        if (!CollectionUtils.isEmpty(validationResults)) {
-            log.info("Open api [{}] validation results:", title);
-            log.info("[{}] CRITICAL severities", countBySeverity(validationResults, Severity.CRITICAL));
-            log.info("[{}] MAJOR severities", countBySeverity(validationResults, Severity.MAJOR));
-            log.info("[{}] MINOR severities", countBySeverity(validationResults, Severity.MINOR));
-            log.info("[{}] INFO severities", countBySeverity(validationResults, Severity.INFO));
-            validationResults.forEach(validationResult -> log.info("Validation result: {}", validationResult));
-        }
+        log.info("Open api [{}] validation results:", title);
+        log.info("[{}] CRITICAL severities", countBySeverity(validationResults, Severity.CRITICAL));
+        log.info("[{}] MAJOR severities", countBySeverity(validationResults, Severity.MAJOR));
+        log.info("[{}] MINOR severities", countBySeverity(validationResults, Severity.MINOR));
+        log.info("[{}] INFO severities", countBySeverity(validationResults, Severity.INFO));
+        validationResults.forEach(validationResult -> log.info("Validation result: {}", validationResult));
     }
 
     private List<ValidationResult> validatePaths(OpenAPI openAPI) {
