@@ -1,8 +1,7 @@
-package com.openapi.converter;
+package com.openapi.converter.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openapi.converter.dto.openapi.OpenAPI;
-import com.openapi.converter.service.OpenApiReportGenerator;
 import lombok.Cleanup;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;

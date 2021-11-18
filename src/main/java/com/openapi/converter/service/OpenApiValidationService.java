@@ -66,7 +66,7 @@ public class OpenApiValidationService {
 
     private void printValidationResults(String title, List<ValidationResult> validationResults) {
         if (!CollectionUtils.isEmpty(validationResults)) {
-            log.info("Open api [{}] validation result:", title);
+            log.info("Open api [{}] validation results:", title);
             log.info("[{}] CRITICAL severities", countBySeverity(validationResults, Severity.CRITICAL));
             log.info("[{}] MAJOR severities", countBySeverity(validationResults, Severity.MAJOR));
             log.info("[{}] MINOR severities", countBySeverity(validationResults, Severity.MINOR));
@@ -117,33 +117,35 @@ public class OpenApiValidationService {
 
     private List<ValidationResult> validateRequestParameters(String path, List<Parameter> parameters) {
         List<ValidationResult> validationResults = newArrayList();
-        parameters.forEach(parameter -> {
-            if (StringUtils.isEmpty(parameter.getDescription())) {
-                validationResults.add(
-                        ValidationResult.builder()
-                                .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
-                                .severity(Severity.CRITICAL)
-                                .path(path)
-                                .field(parameter.getName())
-                                .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
-                                .build()
-                );
-            }
-            if (StringUtils.isEmpty(parameter.getExample())) {
-                validationResults.add(
-                        ValidationResult.builder()
-                                .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
-                                .severity(Severity.INFO)
-                                .path(path)
-                                .field(parameter.getName())
-                                .message(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED.getMessage())
-                                .build()
-                );
-            }
-            if (parameter.getSchema() != null) {
-                validationResults.addAll(validateParameterSchema(path, parameter.getName(), parameter.getSchema()));
-            }
-        });
+        if (!CollectionUtils.isEmpty(parameters)) {
+            parameters.forEach(parameter -> {
+                if (StringUtils.isEmpty(parameter.getDescription())) {
+                    validationResults.add(
+                            ValidationResult.builder()
+                                    .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
+                                    .severity(Severity.CRITICAL)
+                                    .path(path)
+                                    .field(parameter.getName())
+                                    .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
+                                    .build()
+                    );
+                }
+                if (StringUtils.isEmpty(parameter.getExample())) {
+                    validationResults.add(
+                            ValidationResult.builder()
+                                    .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
+                                    .severity(Severity.INFO)
+                                    .path(path)
+                                    .field(parameter.getName())
+                                    .message(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED.getMessage())
+                                    .build()
+                    );
+                }
+                if (parameter.getSchema() != null) {
+                    validationResults.addAll(validateParameterSchema(path, parameter.getName(), parameter.getSchema()));
+                }
+            });
+        }
         return validationResults;
     }
 
