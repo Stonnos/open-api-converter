@@ -7,6 +7,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Rule {
 
+    API_TITLE_REQUIRED("Api 'info.title' must be not empty"),
+
+    API_DESCRIPTION_REQUIRED("Api 'info.description' must be not empty"),
+
+    API_VERSION_REQUIRED("Api 'info.version' must be not empty"),
+
+    API_CONTACT_NAME_REQUIRED("Api 'info.contact.name' must be not empty"),
+
+    API_CONTACT_EMAIL_REQUIRED("Api 'info.contact.email' must be not empty"),
+
     API_OPERATION_DESCRIPTION_REQUIRED("Api operation 'description' field must be not empty"),
 
     API_OPERATION_SUMMARY_REQUIRED("Api operation 'summary' field must be not empty"),
@@ -15,11 +25,11 @@ public enum Rule {
 
     REQUEST_PARAMETER_EXAMPLE_REQUIRED("Request parameter example must be not empty"),
 
-    REQUEST_PARAMETER_MAX_LENGTH_REQUIRED("Request parameter max length must be specified"),
+    REQUEST_PARAMETER_MAX_LENGTH_REQUIRED("Request parameter 'maxLength' must be specified"),
 
-    REQUEST_PARAMETER_MAXIMUM_REQUIRED("Request parameter maximum value must be specified"),
+    REQUEST_PARAMETER_MAXIMUM_REQUIRED("Request parameter 'maximum' value must be specified"),
 
-    REQUEST_PARAMETER_MAX_ITEMS_REQUIRED("Request parameter max items value must be specified");
+    REQUEST_PARAMETER_MAX_ITEMS_REQUIRED("Request parameter 'maxItems' value must be specified");
 
     private final String message;
 }

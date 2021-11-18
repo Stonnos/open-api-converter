@@ -52,9 +52,63 @@ public class OpenApiValidationService {
                 .orElse(null);
         log.info("Starting to validate open api [{}]", title);
         List<ValidationResult> validationResults = newArrayList();
+        validationResults.addAll(validateApiInfo(openAPI));
         validationResults.addAll(validatePaths(openAPI));
         log.info("Open api [{}] validation has been finished", title);
         printValidationResults(title, validationResults);
+        return validationResults;
+    }
+
+    private List<ValidationResult> validateApiInfo(OpenAPI openAPI) {
+        List<ValidationResult> validationResults = newArrayList();
+        if (Optional.ofNullable(openAPI.getInfo()).isEmpty() || StringUtils.isEmpty(openAPI.getInfo().getTitle())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.API_TITLE_REQUIRED)
+                            .severity(Severity.CRITICAL)
+                            .message(Rule.API_TITLE_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        if (Optional.ofNullable(openAPI.getInfo()).isEmpty() || StringUtils.isEmpty(openAPI.getInfo().getVersion())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.API_VERSION_REQUIRED)
+                            .severity(Severity.CRITICAL)
+                            .message(Rule.API_VERSION_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        if (Optional.ofNullable(openAPI.getInfo()).isEmpty() ||
+                StringUtils.isEmpty(openAPI.getInfo().getDescription())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.API_DESCRIPTION_REQUIRED)
+                            .severity(Severity.MAJOR)
+                            .message(Rule.API_DESCRIPTION_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        if (Optional.ofNullable(openAPI.getInfo()).map(Info::getContact).isEmpty() ||
+                StringUtils.isEmpty(openAPI.getInfo().getContact().getName())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.API_CONTACT_NAME_REQUIRED)
+                            .severity(Severity.MAJOR)
+                            .message(Rule.API_CONTACT_NAME_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        if (Optional.ofNullable(openAPI.getInfo()).map(Info::getContact).isEmpty() ||
+                StringUtils.isEmpty(openAPI.getInfo().getContact().getEmail())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.API_CONTACT_EMAIL_REQUIRED)
+                            .severity(Severity.MAJOR)
+                            .message(Rule.API_CONTACT_EMAIL_REQUIRED.getMessage())
+                            .build()
+            );
+        }
         return validationResults;
     }
 
