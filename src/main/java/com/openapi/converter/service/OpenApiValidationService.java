@@ -1,5 +1,6 @@
 package com.openapi.converter.service;
 
+import com.openapi.converter.dto.openapi.Info;
 import com.openapi.converter.dto.openapi.OpenAPI;
 import com.openapi.converter.dto.openapi.Operation;
 import com.openapi.converter.dto.openapi.OperationWrapper;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collections;
@@ -45,9 +47,32 @@ public class OpenApiValidationService {
      * @return validation results
      */
     public List<ValidationResult> validate(OpenAPI openAPI) {
+        String title = Optional.ofNullable(openAPI.getInfo())
+                .map(Info::getTitle)
+                .orElse(null);
+        log.info("Starting to validate open api [{}]", title);
         List<ValidationResult> validationResults = newArrayList();
         validationResults.addAll(validatePaths(openAPI));
+        log.info("Open api [{}] validation has been finished", title);
+        printValidationResults(title, validationResults);
         return validationResults;
+    }
+
+    private long countBySeverity(List<ValidationResult> validationResults, Severity severity) {
+        return validationResults.stream()
+                .filter(validationResult -> severity.equals(validationResult.getSeverity()))
+                .count();
+    }
+
+    private void printValidationResults(String title, List<ValidationResult> validationResults) {
+        if (!CollectionUtils.isEmpty(validationResults)) {
+            log.info("Open api [{}] validation result:", title);
+            log.info("[{}] CRITICAL severities", countBySeverity(validationResults, Severity.CRITICAL));
+            log.info("[{}] MAJOR severities", countBySeverity(validationResults, Severity.MAJOR));
+            log.info("[{}] MINOR severities", countBySeverity(validationResults, Severity.MINOR));
+            log.info("[{}] INFO severities", countBySeverity(validationResults, Severity.INFO));
+            validationResults.forEach(validationResult -> log.info("Validation result: {}", validationResult));
+        }
     }
 
     private List<ValidationResult> validatePaths(OpenAPI openAPI) {
