@@ -1,5 +1,6 @@
 package com.openapi.converter.service;
 
+import com.openapi.converter.dto.openapi.ApiResponse;
 import com.openapi.converter.dto.openapi.Info;
 import com.openapi.converter.dto.openapi.OpenAPI;
 import com.openapi.converter.dto.openapi.Operation;
@@ -154,6 +155,7 @@ public class OpenApiValidationService {
             var operation = operationModel.getOperation();
             validationResults.addAll(validateOperation(path, operation));
             validationResults.addAll(validateRequestBody(path, operation));
+            validationResults.addAll(validateResponses(path, operation));
         });
         return validationResults;
     }
@@ -212,7 +214,8 @@ public class OpenApiValidationService {
                     );
                 }
                 if (parameter.getSchema() != null) {
-                    validationResults.addAll(validateSchemaCommonFields(path, parameter.getName(), parameter.getSchema()));
+                    validationResults.addAll(
+                            validateSchemaCommonFields(path, parameter.getName(), parameter.getSchema()));
                 }
             });
         }
@@ -226,7 +229,7 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         openAPI.getComponents().getSchemas().forEach((ref, schema) ->
                 schema.getProperties().forEach((fieldName, schemaVal) ->
-                                validationResults.addAll(validateSchemaFull(ref, fieldName, schemaVal))
+                        validationResults.addAll(validateSchemaFull(ref, fieldName, schemaVal))
                 )
         );
         return validationResults;
@@ -285,6 +288,48 @@ public class OpenApiValidationService {
                             .path(path)
                             .field(field)
                             .message(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        return validationResults;
+    }
+
+    private List<ValidationResult> validateResponses(String path, Operation operation) {
+        if (CollectionUtils.isEmpty(operation.getResponses())) {
+            return Collections.emptyList();
+        }
+        List<ValidationResult> validationResults = newArrayList();
+        operation.getResponses().forEach((code, response) ->
+                validationResults.addAll(validateResponse(path, code, response))
+        );
+        return validationResults;
+    }
+
+    private List<ValidationResult> validateResponse(String path, String responseCode, ApiResponse apiResponse) {
+        if (CollectionUtils.isEmpty(apiResponse.getContent())) {
+            return Collections.emptyList();
+        }
+        List<ValidationResult> validationResults = newArrayList();
+        var mediaType = apiResponse.getContent().entrySet().iterator().next();
+        if (StringUtils.isEmpty(apiResponse.getDescription())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
+                            .severity(Severity.CRITICAL)
+                            .path(path)
+                            .responseCode(responseCode)
+                            .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        if (mediaType.getValue().getExample() == null) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
+                            .severity(Severity.INFO)
+                            .path(path)
+                            .responseCode(responseCode)
+                            .message(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED.getMessage())
                             .build()
             );
         }

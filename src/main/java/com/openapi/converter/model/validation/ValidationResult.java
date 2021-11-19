@@ -18,4 +18,6 @@ public class ValidationResult {
     private String field;
 
     private String message;
+
+    private String responseCode;
 }
