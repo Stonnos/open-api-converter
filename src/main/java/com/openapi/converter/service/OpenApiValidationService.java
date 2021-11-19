@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,6 +57,7 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         validationResults.addAll(validateApiInfo(openAPI));
         validationResults.addAll(validatePaths(openAPI));
+        validationResults.sort(Comparator.comparing(ValidationResult::getSeverity));
         log.info("Open api [{}] validation has been finished", title);
         printValidationResults(title, validationResults);
         return validationResults;
