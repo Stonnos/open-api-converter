@@ -42,6 +42,7 @@ public class OpenApiValidationService {
     private static final String INTEGER_TYPE = "integer";
     private static final String STRING_TYPE = "string";
     private static final String ARRAY_TYPE = "array";
+    private static final String BINARY_FORMAT = "binary";
 
     /**
      * Validates specified open api.
@@ -250,7 +251,8 @@ public class OpenApiValidationService {
                             .build()
             );
         }
-        if (STRING_TYPE.equals(schema.getType()) && schema.getMaxLength() == null) {
+        if (STRING_TYPE.equals(schema.getType()) && !BINARY_FORMAT.equals(schema.getFormat()) &&
+                schema.getMaxLength() == null) {
             validationResults.add(
                     ValidationResult.builder()
                             .rule(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED)
