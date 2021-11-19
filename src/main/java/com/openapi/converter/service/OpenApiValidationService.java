@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -58,6 +57,7 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         validationResults.addAll(validateApiInfo(openAPI));
         validationResults.addAll(validatePaths(openAPI));
+        validationResults.addAll(validateSchemas(openAPI));
         validationResults.sort(Comparator.comparing(ValidationResult::getSeverity));
         log.info("Open api [{}] validation has been finished", title);
         printValidationResults(title, validationResults);
@@ -117,22 +117,16 @@ public class OpenApiValidationService {
         return validationResults;
     }
 
-    private List<ValidationResult> validateRequestBody(OpenAPI openAPI, String path, Operation operation) {
+    private List<ValidationResult> validateRequestBody(String path, Operation operation) {
         List<ValidationResult> validationResults = newArrayList();
         var requestBody = operation.getRequestBody();
         if (requestBody != null && !CollectionUtils.isEmpty(requestBody.getContent())) {
             var mediaType = requestBody.getContent().entrySet().iterator().next();
             var schema = mediaType.getValue().getSchema();
-            if (StringUtils.isNotEmpty(schema.getRef())) {
-                Schema foundSchema = getSchemaByRef(openAPI, schema.getRef());
-                if (foundSchema != null && !CollectionUtils.isEmpty(foundSchema.getProperties())) {
-                    foundSchema.getProperties().forEach((fieldName, schemaVal) -> validationResults.addAll(
-                            validateSchemaFull(path, fieldName, schemaVal)));
-                }
-            }
             if (!CollectionUtils.isEmpty(schema.getProperties())) {
-                schema.getProperties().forEach((fieldName, schemaVal) -> validationResults.addAll(
-                        validateSchemaFull(path, fieldName, schemaVal)));
+                schema.getProperties().forEach((fieldName, schemaVal) ->
+                        validationResults.addAll(validateSchemaFull(path, fieldName, schemaVal))
+                );
             }
             if (!MediaType.MULTIPART_FORM_DATA_VALUE.equals(mediaType.getKey()) &&
                     mediaType.getValue().getExample() == null) {
@@ -159,7 +153,7 @@ public class OpenApiValidationService {
                             String.format("Can't handle operation for endpoint [%s]", path)));
             var operation = operationModel.getOperation();
             validationResults.addAll(validateOperation(path, operation));
-            validationResults.addAll(validateRequestBody(openAPI, path, operation));
+            validationResults.addAll(validateRequestBody(path, operation));
         });
         return validationResults;
     }
@@ -225,16 +219,17 @@ public class OpenApiValidationService {
         return validationResults;
     }
 
-    private Schema getSchemaByRef(OpenAPI openAPI, String ref) {
+    private List<ValidationResult> validateSchemas(OpenAPI openAPI) {
         if (openAPI.getComponents() == null || CollectionUtils.isEmpty(openAPI.getComponents().getSchemas())) {
-            return null;
+            return Collections.emptyList();
         }
-        return openAPI.getComponents().getSchemas().entrySet()
-                .stream()
-                .filter(entry -> ref.equals(entry.getKey()))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
+        List<ValidationResult> validationResults = newArrayList();
+        openAPI.getComponents().getSchemas().forEach((ref, schema) ->
+                schema.getProperties().forEach((fieldName, schemaVal) ->
+                                validationResults.addAll(validateSchemaFull(ref, fieldName, schemaVal))
+                )
+        );
+        return validationResults;
     }
 
     private List<ValidationResult> validateSchemaFull(String path, String field, Schema schema) {
