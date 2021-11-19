@@ -127,12 +127,12 @@ public class OpenApiValidationService {
                 Schema foundSchema = getSchemaByRef(openAPI, schema.getRef());
                 if (foundSchema != null && !CollectionUtils.isEmpty(foundSchema.getProperties())) {
                     foundSchema.getProperties().forEach((fieldName, schemaVal) -> validationResults.addAll(
-                            validateSchema(path, fieldName, schemaVal)));
+                            validateSchemaFull(path, fieldName, schemaVal)));
                 }
             }
             if (!CollectionUtils.isEmpty(schema.getProperties())) {
                 schema.getProperties().forEach((fieldName, schemaVal) -> validationResults.addAll(
-                        validateSchema(path, fieldName, schemaVal)));
+                        validateSchemaFull(path, fieldName, schemaVal)));
             }
             if (!MediaType.MULTIPART_FORM_DATA_VALUE.equals(mediaType.getKey()) &&
                     mediaType.getValue().getExample() == null) {
@@ -218,7 +218,7 @@ public class OpenApiValidationService {
                     );
                 }
                 if (parameter.getSchema() != null) {
-                    validationResults.addAll(validateSchema(path, parameter.getName(), parameter.getSchema()));
+                    validationResults.addAll(validateSchemaCommonFields(path, parameter.getName(), parameter.getSchema()));
                 }
             });
         }
@@ -237,7 +237,24 @@ public class OpenApiValidationService {
                 .orElse(null);
     }
 
-    private List<ValidationResult> validateSchema(String path, String field, Schema schema) {
+    private List<ValidationResult> validateSchemaFull(String path, String field, Schema schema) {
+        List<ValidationResult> validationResults = validateSchemaCommonFields(path, field, schema);
+        if (StringUtils.isEmpty(schema.getDescription())) {
+            validationResults.add(
+                    ValidationResult.builder()
+                            .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
+                            .severity(Severity.CRITICAL)
+                            .schemaRef(schema.getRef())
+                            .path(path)
+                            .field(field)
+                            .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
+                            .build()
+            );
+        }
+        return validationResults;
+    }
+
+    private List<ValidationResult> validateSchemaCommonFields(String path, String field, Schema schema) {
         List<ValidationResult> validationResults = newArrayList();
         if (INTEGER_TYPE.equals(schema.getType()) && schema.getMaximum() == null) {
             validationResults.add(
