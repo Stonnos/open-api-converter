@@ -29,8 +29,8 @@ public class ValidationResultHelper {
     /**
      * Builds validation result.
      *
-     * @param rule      - rule code
-     * @param path      - endpoint
+     * @param rule - rule code
+     * @param path - endpoint
      * @return validation result
      */
     public ValidationResult buildValidationResult(Rule rule, String path) {
@@ -42,32 +42,33 @@ public class ValidationResultHelper {
     /**
      * Builds validation result.
      *
-     * @param rule      - rule code
-     * @param path      - endpoint
-     * @param parameter - request parameter
+     * @param rule                - rule code
+     * @param path                - endpoint
+     * @param parameterOrProperty - request parameter
      * @return validation result
      */
-    public ValidationResult buildValidationResult(Rule rule, String path, String parameter) {
+    public ValidationResult buildValidationResult(Rule rule, String path, String parameterOrProperty) {
         return builder(rule)
                 .path(path)
-                .parameter(parameter)
+                .parameterOrProperty(parameterOrProperty)
                 .build();
     }
 
     /**
      * Builds validation result.
      *
-     * @param rule      - rule code
-     * @param path      - endpoint
-     * @param schemaRef - schema reference
-     * @param parameter - schema property
+     * @param rule                - rule code
+     * @param path                - endpoint
+     * @param schemaRef           - schema reference
+     * @param parameterOrProperty - schema property
      * @return validation result
      */
-    public ValidationResult buildValidationResult(Rule rule, String path, String schemaRef, String parameter) {
+    public ValidationResult buildValidationResult(Rule rule, String path, String schemaRef,
+                                                  String parameterOrProperty) {
         return builder(rule)
                 .path(path)
                 .schemaRef(schemaRef)
-                .parameter(parameter)
+                .parameterOrProperty(parameterOrProperty)
                 .build();
     }
 
