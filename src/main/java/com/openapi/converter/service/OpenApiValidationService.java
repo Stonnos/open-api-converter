@@ -27,6 +27,9 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.openapi.converter.util.Utils.hasMaxItems;
+import static com.openapi.converter.util.Utils.hasMaxLength;
+import static com.openapi.converter.util.Utils.hasMaximum;
 
 /**
  * Open API validation service.
@@ -108,7 +111,7 @@ public class OpenApiValidationService {
             var schema = mediaType.getValue().getSchema();
             if (!CollectionUtils.isEmpty(schema.getProperties())) {
                 schema.getProperties().forEach((fieldName, schemaVal) ->
-                        validationResults.addAll(validateSchemaFull(path, fieldName, schemaVal))
+                        validationResults.addAll(validateSchema(path, fieldName, schemaVal))
                 );
             }
             if (mediaType.getValue().getExample() == null) {
@@ -171,7 +174,7 @@ public class OpenApiValidationService {
                 }
                 if (parameter.getSchema() != null) {
                     validationResults.addAll(
-                            validateSchemaCommonFields(path, parameter.getName(), parameter.getSchema()));
+                            validateRequestParameterSchema(path, parameter.getName(), parameter.getSchema()));
                 }
             });
         }
@@ -191,48 +194,77 @@ public class OpenApiValidationService {
                 );
             }
             schema.getProperties().forEach((fieldName, schemaVal) ->
-                    validationResults.addAll(validateSchemaFull(ref, fieldName, schemaVal))
+                    validationResults.addAll(validateSchema(ref, fieldName, schemaVal))
             );
         });
         return validationResults;
     }
 
-    private List<ValidationResult> validateSchemaFull(String path, String field, Schema schema) {
-        List<ValidationResult> validationResults = validateSchemaCommonFields(path, field, schema);
+    private List<ValidationResult> validateSchema(String path, String field, Schema schema) {
+        List<ValidationResult> validationResults = newArrayList();
         if (StringUtils.isEmpty(schema.getDescription())) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_DESCRIPTION_REQUIRED, path,
                             schema.getRef(), field)
             );
         }
-        return validationResults;
-    }
-
-    private List<ValidationResult> validateSchemaCommonFields(String path, String field, Schema schema) {
-        List<ValidationResult> validationResults = newArrayList();
-        if (NUMBER_TYPES.contains(schema.getType()) && schema.getMaximum() == null) {
+        if (StringUtils.isEmpty(schema.getExample())) {
+            validationResults.add(
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_EXAMPLE_REQUIRED, path,
+                            schema.getRef(), field)
+            );
+        }
+        if (!hasMaximum(schema)) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAXIMUM_REQUIRED, path,
                             schema.getRef(), field)
             );
         }
-        if (NUMBER_TYPES.contains(schema.getType()) && schema.getMinimum() == null) {
+        if (!hasMaximum(schema)) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MINIMUM_REQUIRED, path,
                             schema.getRef(), field)
             );
         }
-        if (STRING_TYPE.equals(schema.getType()) && !BINARY_FORMAT.equals(schema.getFormat()) &&
-                schema.getMaxLength() == null) {
+        if (!hasMaxLength(schema)) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_LENGTH_REQUIRED, path,
                             schema.getRef(), field)
             );
         }
-        if (ARRAY_TYPE.equals(schema.getType()) && schema.getMaxItems() == null) {
+        if (!hasMaxItems(schema)) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_ITEMS_REQUIRED, path,
                             schema.getRef(), field)
+            );
+        }
+        return validationResults;
+    }
+
+    private List<ValidationResult> validateRequestParameterSchema(String path, String parameter, Schema schema) {
+        List<ValidationResult> validationResults = newArrayList();
+        if (!hasMaximum(schema)) {
+            validationResults.add(
+                    validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_MAXIMUM_REQUIRED, path,
+                            parameter)
+            );
+        }
+        if (!hasMaximum(schema)) {
+            validationResults.add(
+                    validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_MINIMUM_REQUIRED, path,
+                            parameter)
+            );
+        }
+        if (!hasMaxLength(schema)) {
+            validationResults.add(
+                    validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED, path,
+                            parameter)
+            );
+        }
+        if (!hasMaxItems(schema)) {
+            validationResults.add(
+                    validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED, path,
+                            parameter)
             );
         }
         return validationResults;
