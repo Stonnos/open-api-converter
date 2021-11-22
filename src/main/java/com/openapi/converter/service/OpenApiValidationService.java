@@ -4,29 +4,25 @@ import com.openapi.converter.dto.openapi.ApiResponse;
 import com.openapi.converter.dto.openapi.Info;
 import com.openapi.converter.dto.openapi.OpenAPI;
 import com.openapi.converter.dto.openapi.Operation;
-import com.openapi.converter.dto.openapi.OperationWrapper;
 import com.openapi.converter.dto.openapi.Parameter;
-import com.openapi.converter.dto.openapi.PathItem;
 import com.openapi.converter.dto.openapi.Schema;
-import com.openapi.converter.exception.ReportException;
+import com.openapi.converter.exception.OperationNotSpecifiedException;
 import com.openapi.converter.model.validation.Rule;
 import com.openapi.converter.model.validation.Severity;
 import com.openapi.converter.model.validation.ValidationResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.openapi.converter.util.Utils.getOperation;
 import static com.openapi.converter.util.Utils.hasMaxItems;
 import static com.openapi.converter.util.Utils.hasMaxLength;
 import static com.openapi.converter.util.Utils.hasMaximum;
@@ -40,12 +36,6 @@ import static com.openapi.converter.util.Utils.hasMaximum;
 @Service
 @RequiredArgsConstructor
 public class OpenApiValidationService {
-
-    private static final String STRING_TYPE = "string";
-    private static final String ARRAY_TYPE = "array";
-    private static final String BINARY_FORMAT = "binary";
-
-    private static final List<String> NUMBER_TYPES = List.of("integer", "number");
 
     private final ValidationResultHelper validationResultHelper;
 
@@ -129,8 +119,8 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         paths.forEach((path, pathItem) -> {
             var operationModel = getOperation(pathItem)
-                    .orElseThrow(() -> new ReportException(
-                            String.format("Can't handle operation for endpoint [%s]", path)));
+                    .orElseThrow(() -> new OperationNotSpecifiedException(
+                            String.format("Operation not spcified for endpoint [%s]", path)));
             var operation = operationModel.getOperation();
             validationResults.addAll(validateOperation(path, operation));
             validationResults.addAll(validateRequestBody(path, operation));
@@ -300,32 +290,6 @@ public class OpenApiValidationService {
             );
         }
         return validationResults;
-    }
-
-    private Optional<OperationWrapper> getOperation(PathItem pathItem) {
-        var operationWrapper = ObjectUtils.firstNonNull(
-                getOperationOrNull(pathItem, PathItem::getGet, RequestMethod.GET),
-                getOperationOrNull(pathItem, PathItem::getPost, RequestMethod.POST),
-                getOperationOrNull(pathItem, PathItem::getPut, RequestMethod.PUT),
-                getOperationOrNull(pathItem, PathItem::getDelete, RequestMethod.DELETE),
-                getOperationOrNull(pathItem, PathItem::getPatch, RequestMethod.PATCH),
-                getOperationOrNull(pathItem, PathItem::getOptions, RequestMethod.OPTIONS),
-                getOperationOrNull(pathItem, PathItem::getHead, RequestMethod.HEAD),
-                getOperationOrNull(pathItem, PathItem::getTrace, RequestMethod.TRACE)
-        );
-        return Optional.ofNullable(operationWrapper);
-    }
-
-    private OperationWrapper getOperationOrNull(PathItem pathItem,
-                                                Function<PathItem, Operation> operationFunction,
-                                                RequestMethod requestMethod) {
-        return Optional.ofNullable(operationFunction.apply(pathItem))
-                .map(operation -> OperationWrapper
-                        .builder()
-                        .operation(operation)
-                        .requestMethod(requestMethod)
-                        .build()
-                ).orElse(null);
     }
 
     private long countBySeverity(List<ValidationResult> validationResults, Severity severity) {
