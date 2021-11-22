@@ -39,6 +39,8 @@ import static com.openapi.converter.util.Utils.hasMinimum;
 @RequiredArgsConstructor
 public class OpenApiValidationService {
 
+    private static final String ARRAY_TYPE = "array";
+
     private final ValidationResultHelper validationResultHelper;
 
     /**
@@ -117,7 +119,7 @@ public class OpenApiValidationService {
         paths.forEach((path, pathItem) -> {
             var operationModel = getOperation(pathItem)
                     .orElseThrow(() -> new OperationNotSpecifiedException(
-                            String.format("Operation not spcified for endpoint [%s]", path)));
+                            String.format("Operation not specified for endpoint [%s]", path)));
             var operation = operationModel.getOperation();
             validationResults.addAll(validateOperation(path, operation));
             validationResults.addAll(validateRequestBody(path, operation));
@@ -191,7 +193,8 @@ public class OpenApiValidationService {
 
     private List<ValidationResult> validateSchema(String ref, String field, Schema schema) {
         List<ValidationResult> validationResults = newArrayList();
-        if (StringUtils.isEmpty(schema.getDescription())) {
+        if (!ARRAY_TYPE.equals(schema.getType()) && StringUtils.isEmpty(schema.getRef()) &&
+                StringUtils.isEmpty(schema.getDescription())) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_DESCRIPTION_REQUIRED, null,
                             ref, field)
