@@ -18,6 +18,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import javax.inject.Inject;
 import java.io.IOException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * Unit tests for open api conversion.
  *
@@ -29,6 +31,8 @@ import java.io.IOException;
 @Import({OpenApiValidationService.class, OpenApiConverterConfiguration.class, ValidationResultHelper.class,
         ValidationRuleService.class})
 class OpenApiValidationServiceTest {
+
+    private static final int EXPECTED_ERRORS_SIZE = 59;
 
     @Value("classpath:api-docs/api-docs-for-validation.json")
     private Resource resource;
@@ -49,5 +53,6 @@ class OpenApiValidationServiceTest {
     @Test
     void testValidateOpenApi() {
         var validationResults = openApiValidationService.validate(openApi);
+        assertThat(validationResults).hasSize(EXPECTED_ERRORS_SIZE);
     }
 }

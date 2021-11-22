@@ -1,13 +1,11 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Microservice for users managment",
     "description": "API provides operations with users for ECA web application",
     "contact": {
       "name": "Roman Batygin",
       "email": "roman.batygin@mail.ru"
-    },
-    "version": "6.1"
+    }
   },
   "servers": [
     {
@@ -1362,8 +1360,7 @@
               "$ref": "#/components/schemas/FilterRequestDto"
             }
           }
-        },
-        "description": "Page request model"
+        }
       },
       "CreateUserDto": {
         "required": [
