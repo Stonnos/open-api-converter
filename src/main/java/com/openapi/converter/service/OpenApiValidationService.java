@@ -103,7 +103,7 @@ public class OpenApiValidationService {
             var schema = mediaType.getValue().getSchema();
             if (!CollectionUtils.isEmpty(schema.getProperties())) {
                 schema.getProperties().forEach((fieldName, schemaVal) ->
-                        validationResults.addAll(validateSchema(path, fieldName, schemaVal))
+                        validationResults.addAll(validateSchema(schema.getRef(), fieldName, schemaVal))
                 );
             }
             if (mediaType.getValue().getExample() == null) {
@@ -182,7 +182,7 @@ public class OpenApiValidationService {
             if (StringUtils.isEmpty(schema.getDescription())) {
                 validationResults.add(
                         validationResultHelper.buildValidationResult(Rule.SCHEMA_DESCRIPTION_REQUIRED, null,
-                                schema.getRef(), null)
+                                ref, null)
                 );
             }
             schema.getProperties().forEach((fieldName, schemaVal) ->
@@ -192,42 +192,42 @@ public class OpenApiValidationService {
         return validationResults;
     }
 
-    private List<ValidationResult> validateSchema(String path, String field, Schema schema) {
+    private List<ValidationResult> validateSchema(String ref, String field, Schema schema) {
         List<ValidationResult> validationResults = newArrayList();
         if (StringUtils.isEmpty(schema.getDescription())) {
             validationResults.add(
-                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_DESCRIPTION_REQUIRED, path,
-                            schema.getRef(), field)
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_DESCRIPTION_REQUIRED, null,
+                            ref, field)
             );
         }
         if (StringUtils.isEmpty(schema.getExample())) {
             validationResults.add(
-                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_EXAMPLE_REQUIRED, path,
-                            schema.getRef(), field)
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_EXAMPLE_REQUIRED, null,
+                            ref, field)
             );
         }
         if (!hasMaximum(schema)) {
             validationResults.add(
-                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAXIMUM_REQUIRED, path,
-                            schema.getRef(), field)
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAXIMUM_REQUIRED, null,
+                            ref, field)
             );
         }
         if (!hasMinimum(schema)) {
             validationResults.add(
-                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MINIMUM_REQUIRED, path,
-                            schema.getRef(), field)
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MINIMUM_REQUIRED, null,
+                            ref, field)
             );
         }
         if (!hasMaxLength(schema)) {
             validationResults.add(
-                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_LENGTH_REQUIRED, path,
-                            schema.getRef(), field)
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_LENGTH_REQUIRED, null,
+                            ref, field)
             );
         }
         if (!hasMaxItems(schema)) {
             validationResults.add(
-                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_ITEMS_REQUIRED, path,
-                            schema.getRef(), field)
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_ITEMS_REQUIRED, null,
+                            ref, field)
             );
         }
         return validationResults;
