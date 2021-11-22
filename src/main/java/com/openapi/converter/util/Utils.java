@@ -4,6 +4,8 @@ import com.openapi.converter.dto.openapi.Operation;
 import com.openapi.converter.dto.openapi.OperationWrapper;
 import com.openapi.converter.dto.openapi.PathItem;
 import com.openapi.converter.dto.openapi.Schema;
+import com.openapi.converter.model.validation.Severity;
+import com.openapi.converter.model.validation.ValidationResult;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -85,6 +87,19 @@ public class Utils {
                 getOperationOrNull(pathItem, PathItem::getTrace, RequestMethod.TRACE)
         );
         return Optional.ofNullable(operationWrapper);
+    }
+
+    /**
+     * Gets validation errors count with specified severity level.
+     *
+     * @param validationResults - validation results
+     * @param severity          - severity level
+     * @return validation errors count
+     */
+    public static long countBySeverity(List<ValidationResult> validationResults, Severity severity) {
+        return validationResults.stream()
+                .filter(validationResult -> severity.equals(validationResult.getSeverity()))
+                .count();
     }
 
     private static OperationWrapper getOperationOrNull(PathItem pathItem,

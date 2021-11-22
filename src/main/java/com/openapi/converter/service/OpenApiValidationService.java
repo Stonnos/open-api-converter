@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.openapi.converter.util.Utils.countBySeverity;
 import static com.openapi.converter.util.Utils.getOperation;
 import static com.openapi.converter.util.Utils.hasMaxItems;
 import static com.openapi.converter.util.Utils.hasMaxLength;
@@ -290,12 +291,6 @@ public class OpenApiValidationService {
             );
         }
         return validationResults;
-    }
-
-    private long countBySeverity(List<ValidationResult> validationResults, Severity severity) {
-        return validationResults.stream()
-                .filter(validationResult -> severity.equals(validationResult.getSeverity()))
-                .count();
     }
 
     private void printValidationResults(String title, List<ValidationResult> validationResults) {
