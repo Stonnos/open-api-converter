@@ -180,9 +180,11 @@ public class OpenApiValidationService {
                                 ref, null)
                 );
             }
-            schema.getProperties().forEach((fieldName, schemaVal) ->
-                    validationResults.addAll(validateSchema(ref, fieldName, schemaVal))
-            );
+            if (!CollectionUtils.isEmpty(schema.getProperties())) {
+                schema.getProperties().forEach((fieldName, schemaVal) ->
+                        validationResults.addAll(validateSchema(ref, fieldName, schemaVal))
+                );
+            }
         });
         return validationResults;
     }

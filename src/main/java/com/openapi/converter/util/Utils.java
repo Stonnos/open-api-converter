@@ -8,6 +8,7 @@ import com.openapi.converter.model.validation.Severity;
 import com.openapi.converter.model.validation.ValidationResult;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
@@ -35,7 +36,8 @@ public class Utils {
      * @return {@code true} if schema maximum value is specified, {@code false} otherwise
      */
     public static boolean hasMaximum(Schema schema) {
-        return !NUMBER_TYPES.contains(schema.getType()) || schema.getMaximum() != null;
+        return StringUtils.isEmpty(schema.getType()) || !NUMBER_TYPES.contains(schema.getType()) ||
+                schema.getMaximum() != null;
     }
 
     /**
@@ -45,7 +47,8 @@ public class Utils {
      * @return {@code true} if schema minimum value is specified, {@code false} otherwise
      */
     public static boolean hasMinimum(Schema schema) {
-        return !NUMBER_TYPES.contains(schema.getType()) || schema.getMinimum() != null;
+        return StringUtils.isEmpty(schema.getType()) || !NUMBER_TYPES.contains(schema.getType()) ||
+                schema.getMinimum() != null;
     }
 
     /**
@@ -55,7 +58,8 @@ public class Utils {
      * @return {@code true} if schema max length value is specified, {@code false} otherwise
      */
     public static boolean hasMaxLength(Schema schema) {
-        return !STRING_TYPE.equals(schema.getType()) || BINARY_FORMAT.equals(schema.getFormat()) ||
+        return StringUtils.isEmpty(schema.getType()) || !STRING_TYPE.equals(schema.getType()) ||
+                BINARY_FORMAT.equals(schema.getFormat()) ||
                 schema.getMaxLength() != null;
     }
 
@@ -66,7 +70,8 @@ public class Utils {
      * @return {@code true} if schema max items value is specified, {@code false} otherwise
      */
     public static boolean hasMaxItems(Schema schema) {
-        return !ARRAY_TYPE.equals(schema.getType()) || schema.getMaxItems() != null;
+        return StringUtils.isEmpty(schema.getType()) || !ARRAY_TYPE.equals(schema.getType()) ||
+                schema.getMaxItems() != null;
     }
 
     /**
