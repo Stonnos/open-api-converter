@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,10 +38,11 @@ import static com.google.common.collect.Lists.newArrayList;
 @RequiredArgsConstructor
 public class OpenApiValidationService {
 
-    private static final String INTEGER_TYPE = "integer";
     private static final String STRING_TYPE = "string";
     private static final String ARRAY_TYPE = "array";
     private static final String BINARY_FORMAT = "binary";
+
+    private static final List<String> NUMBER_TYPES = List.of("integer", "number");
 
     private final ValidationResultHelper validationResultHelper;
 
@@ -204,9 +204,15 @@ public class OpenApiValidationService {
 
     private List<ValidationResult> validateSchemaCommonFields(String path, String field, Schema schema) {
         List<ValidationResult> validationResults = newArrayList();
-        if (INTEGER_TYPE.equals(schema.getType()) && schema.getMaximum() == null) {
+        if (NUMBER_TYPES.contains(schema.getType()) && schema.getMaximum() == null) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAXIMUM_REQUIRED, path,
+                            schema.getRef(), field)
+            );
+        }
+        if (NUMBER_TYPES.contains(schema.getType()) && schema.getMinimum() == null) {
+            validationResults.add(
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MINIMUM_REQUIRED, path,
                             schema.getRef(), field)
             );
         }
