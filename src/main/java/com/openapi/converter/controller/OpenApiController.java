@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -63,7 +61,8 @@ public class OpenApiController {
         var reportString = openApiReportGenerator.generateAsciiDocReport(openApi);
         var fileBaseName = FilenameUtils.getBaseName(openApiJson.getOriginalFilename());
         String reportName = String.format(ASCII_DOC_REPORT_NAME, fileBaseName);
-        @Cleanup var outputStream = getOutputStream(httpServletResponse, reportName);
+        @Cleanup var outputStream = httpServletResponse.getOutputStream();
+        setResponseHeaders(httpServletResponse, reportName);
         IOUtils.write(reportString, outputStream, StandardCharsets.UTF_8);
         outputStream.flush();
         log.info("Open api report file [{}] has been generated", reportName);
@@ -87,18 +86,16 @@ public class OpenApiController {
         var validationResults = openApiValidationService.validate(openApi);
         var fileBaseName = FilenameUtils.getBaseName(openApiJson.getOriginalFilename());
         String reportName = String.format(VALIDATION_RESULTS_REPORT_NAME, fileBaseName);
-        @Cleanup var outputStream = getOutputStream(httpServletResponse, reportName);
+        @Cleanup var outputStream = httpServletResponse.getOutputStream();
+        setResponseHeaders(httpServletResponse, reportName);
         log.info("Starting to generate validation results report [{}] archive", reportName);
         openApiValidationResultsCsvReportGenerator.generateReport(validationResults, outputStream);
         outputStream.flush();
         log.info("Open api validation results report [{}] archive has been generated", reportName);
     }
 
-    private OutputStream getOutputStream(HttpServletResponse httpServletResponse, String reportName)
-            throws IOException {
-        var outputStream = httpServletResponse.getOutputStream();
+    private void setResponseHeaders(HttpServletResponse httpServletResponse, String reportName) {
         httpServletResponse.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         httpServletResponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format(ATTACHMENT_FORMAT, reportName));
-        return outputStream;
     }
 }
