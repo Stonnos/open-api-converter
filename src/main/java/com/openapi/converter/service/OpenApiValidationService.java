@@ -183,11 +183,17 @@ public class OpenApiValidationService {
             return Collections.emptyList();
         }
         List<ValidationResult> validationResults = newArrayList();
-        openAPI.getComponents().getSchemas().forEach((ref, schema) ->
-                schema.getProperties().forEach((fieldName, schemaVal) ->
-                        validationResults.addAll(validateSchemaFull(ref, fieldName, schemaVal))
-                )
-        );
+        openAPI.getComponents().getSchemas().forEach((ref, schema) -> {
+            if (StringUtils.isEmpty(schema.getDescription())) {
+                validationResults.add(
+                        validationResultHelper.buildValidationResult(Rule.SCHEMA_DESCRIPTION_REQUIRED, null,
+                                schema.getRef(), null)
+                );
+            }
+            schema.getProperties().forEach((fieldName, schemaVal) ->
+                    validationResults.addAll(validateSchemaFull(ref, fieldName, schemaVal))
+            );
+        });
         return validationResults;
     }
 
