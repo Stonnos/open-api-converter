@@ -55,8 +55,8 @@ public class Utils {
      * @return {@code true} if schema max length value is specified, {@code false} otherwise
      */
     public static boolean hasMaxLength(Schema schema) {
-        return !STRING_TYPE.equals(schema.getType()) || (!BINARY_FORMAT.equals(schema.getFormat()) &&
-                schema.getMaxLength() != null);
+        return !STRING_TYPE.equals(schema.getType()) || BINARY_FORMAT.equals(schema.getFormat()) ||
+                schema.getMaxLength() != null;
     }
 
     /**
