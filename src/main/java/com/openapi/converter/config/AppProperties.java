@@ -21,4 +21,10 @@ public class AppProperties {
      */
     @NotEmpty(message = "Template location must be specified!")
     private String templateLocation;
+
+    /**
+     * Validation rules location
+     */
+    @NotEmpty(message = "Validation rules location!")
+    private String validationRulesLocation;
 }
