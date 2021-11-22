@@ -59,8 +59,7 @@ public class Utils {
      */
     public static boolean hasMaxLength(Schema schema) {
         return StringUtils.isEmpty(schema.getType()) || !STRING_TYPE.equals(schema.getType()) ||
-                BINARY_FORMAT.equals(schema.getFormat()) ||
-                schema.getMaxLength() != null;
+                BINARY_FORMAT.equals(schema.getFormat()) || schema.getMaxLength() != null;
     }
 
     /**
