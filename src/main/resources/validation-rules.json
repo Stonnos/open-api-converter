@@ -86,5 +86,9 @@
   "API_RESPONSE_EXAMPLE_REQUIRED": {
     "severity": "INFO",
     "message": "Api response example not specified"
+  },
+  "REQUEST_BODY_EXAMPLE_REQUIRED": {
+    "severity": "INFO",
+    "message": "Request body example not specified"
   }
 }

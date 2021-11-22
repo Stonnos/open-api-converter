@@ -44,6 +44,8 @@ public class OpenApiValidationService {
     private static final String ARRAY_TYPE = "array";
     private static final String BINARY_FORMAT = "binary";
 
+    private final ValidationResultHelper validationResultHelper;
+
     /**
      * Validates specified open api.
      *
@@ -69,50 +71,30 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         if (Optional.ofNullable(openAPI.getInfo()).isEmpty() || StringUtils.isEmpty(openAPI.getInfo().getTitle())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_TITLE_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .message(Rule.API_TITLE_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_TITLE_REQUIRED)
             );
         }
         if (Optional.ofNullable(openAPI.getInfo()).isEmpty() || StringUtils.isEmpty(openAPI.getInfo().getVersion())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_VERSION_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .message(Rule.API_VERSION_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_VERSION_REQUIRED)
             );
         }
         if (Optional.ofNullable(openAPI.getInfo()).isEmpty() ||
                 StringUtils.isEmpty(openAPI.getInfo().getDescription())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_DESCRIPTION_REQUIRED)
-                            .severity(Severity.MAJOR)
-                            .message(Rule.API_DESCRIPTION_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_DESCRIPTION_REQUIRED)
             );
         }
         if (Optional.ofNullable(openAPI.getInfo()).map(Info::getContact).isEmpty() ||
                 StringUtils.isEmpty(openAPI.getInfo().getContact().getName())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_CONTACT_NAME_REQUIRED)
-                            .severity(Severity.MAJOR)
-                            .message(Rule.API_CONTACT_NAME_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_CONTACT_NAME_REQUIRED)
             );
         }
         if (Optional.ofNullable(openAPI.getInfo()).map(Info::getContact).isEmpty() ||
                 StringUtils.isEmpty(openAPI.getInfo().getContact().getEmail())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_CONTACT_EMAIL_REQUIRED)
-                            .severity(Severity.MAJOR)
-                            .message(Rule.API_CONTACT_EMAIL_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_CONTACT_EMAIL_REQUIRED)
             );
         }
         return validationResults;
@@ -129,16 +111,10 @@ public class OpenApiValidationService {
                         validationResults.addAll(validateSchemaFull(path, fieldName, schemaVal))
                 );
             }
-            if (!MediaType.MULTIPART_FORM_DATA_VALUE.equals(mediaType.getKey()) &&
-                    mediaType.getValue().getExample() == null) {
+            if (mediaType.getValue().getExample() == null) {
                 validationResults.add(
-                        ValidationResult.builder()
-                                .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
-                                .severity(Severity.INFO)
-                                .path(path)
-                                .schemaRef(schema.getRef())
-                                .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
-                                .build()
+                        validationResultHelper.buildValidationResult(Rule.REQUEST_BODY_EXAMPLE_REQUIRED, path,
+                                schema.getRef(), null)
                 );
             }
         }
@@ -164,22 +140,12 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         if (StringUtils.isEmpty(operation.getDescription())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_OPERATION_DESCRIPTION_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .path(path)
-                            .message(Rule.API_OPERATION_DESCRIPTION_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_OPERATION_DESCRIPTION_REQUIRED, path)
             );
         }
         if (StringUtils.isEmpty(operation.getSummary())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.API_OPERATION_SUMMARY_REQUIRED)
-                            .severity(Severity.INFO)
-                            .path(path)
-                            .message(Rule.API_OPERATION_SUMMARY_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.API_OPERATION_SUMMARY_REQUIRED, path)
             );
         }
         var requestParameters = operation.getParameters();
@@ -193,24 +159,14 @@ public class OpenApiValidationService {
             parameters.forEach(parameter -> {
                 if (StringUtils.isEmpty(parameter.getDescription())) {
                     validationResults.add(
-                            ValidationResult.builder()
-                                    .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
-                                    .severity(Severity.CRITICAL)
-                                    .path(path)
-                                    .parameter(parameter.getName())
-                                    .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
-                                    .build()
+                            validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED,
+                                    path, parameter.getName())
                     );
                 }
                 if (StringUtils.isEmpty(parameter.getExample())) {
                     validationResults.add(
-                            ValidationResult.builder()
-                                    .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
-                                    .severity(Severity.INFO)
-                                    .path(path)
-                                    .parameter(parameter.getName())
-                                    .message(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED.getMessage())
-                                    .build()
+                            validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED,
+                                    path, parameter.getName())
                     );
                 }
                 if (parameter.getSchema() != null) {
@@ -239,14 +195,8 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = validateSchemaCommonFields(path, field, schema);
         if (StringUtils.isEmpty(schema.getDescription())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .schemaRef(schema.getRef())
-                            .path(path)
-                            .parameter(field)
-                            .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_DESCRIPTION_REQUIRED, path,
+                            schema.getRef(), field)
             );
         }
         return validationResults;
@@ -256,39 +206,21 @@ public class OpenApiValidationService {
         List<ValidationResult> validationResults = newArrayList();
         if (INTEGER_TYPE.equals(schema.getType()) && schema.getMaximum() == null) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.REQUEST_PARAMETER_MAXIMUM_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .schemaRef(schema.getRef())
-                            .path(path)
-                            .parameter(field)
-                            .message(Rule.REQUEST_PARAMETER_MAXIMUM_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAXIMUM_REQUIRED, path,
+                            schema.getRef(), field)
             );
         }
         if (STRING_TYPE.equals(schema.getType()) && !BINARY_FORMAT.equals(schema.getFormat()) &&
                 schema.getMaxLength() == null) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .schemaRef(schema.getRef())
-                            .path(path)
-                            .parameter(field)
-                            .message(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_LENGTH_REQUIRED, path,
+                            schema.getRef(), field)
             );
         }
         if (ARRAY_TYPE.equals(schema.getType()) && schema.getMaxItems() == null) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .schemaRef(schema.getRef())
-                            .path(path)
-                            .parameter(field)
-                            .message(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MAX_ITEMS_REQUIRED, path,
+                            schema.getRef(), field)
             );
         }
         return validationResults;
@@ -313,24 +245,14 @@ public class OpenApiValidationService {
         var mediaType = apiResponse.getContent().entrySet().iterator().next();
         if (StringUtils.isEmpty(apiResponse.getDescription())) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
-                            .severity(Severity.CRITICAL)
-                            .path(path)
-                            .responseCode(responseCode)
-                            .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildResponseValidationResult(Rule.API_RESPONSE_DESCRIPTION_REQUIRED, path,
+                            responseCode)
             );
         }
         if (mediaType.getValue().getExample() == null) {
             validationResults.add(
-                    ValidationResult.builder()
-                            .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
-                            .severity(Severity.INFO)
-                            .path(path)
-                            .responseCode(responseCode)
-                            .message(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED.getMessage())
-                            .build()
+                    validationResultHelper.buildResponseValidationResult(Rule.API_RESPONSE_EXAMPLE_REQUIRED, path,
+                            responseCode)
             );
         }
         return validationResults;
