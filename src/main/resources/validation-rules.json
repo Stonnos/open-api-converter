@@ -1,0 +1,90 @@
+{
+  "API_TITLE_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Api 'info.title' must be not empty"
+  },
+  "API_DESCRIPTION_REQUIRED": {
+    "severity": "MAJOR",
+    "message": "Api 'info.description' must be not empty"
+  },
+  "API_VERSION_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Api 'info.version' must be not empty"
+  },
+  "API_CONTACT_NAME_REQUIRED": {
+    "severity": "MINOR",
+    "message": "Api 'info.contact.name' must be not empty"
+  },
+  "API_CONTACT_EMAIL_REQUIRED": {
+    "severity": "MINOR",
+    "message": "Api 'info.contact.email' must be not empty"
+  },
+  "API_OPERATION_DESCRIPTION_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Api operation 'description' must be not empty"
+  },
+  "API_OPERATION_SUMMARY_REQUIRED": {
+    "severity": "MINOR",
+    "message": "Api operation 'summary' must be not empty"
+  },
+  "REQUEST_PARAMETER_DESCRIPTION_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Request parameter 'description' must be not empty"
+  },
+  "REQUEST_PARAMETER_EXAMPLE_REQUIRED": {
+    "severity": "INFO",
+    "message": "Request parameter example not specified"
+  },
+  "REQUEST_PARAMETER_MAX_LENGTH_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Request parameter 'maxLength' not specified"
+  },
+  "REQUEST_PARAMETER_MINIMUM_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Request parameter 'minimum' not specified"
+  },
+  "REQUEST_PARAMETER_MAXIMUM_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Request parameter 'maximum' not specified"
+  },
+  "REQUEST_PARAMETER_MAX_ITEMS_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Request parameter 'maxItems' not specified"
+  },
+  "SCHEMA_DESCRIPTION_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Schema description must be not empty"
+  },
+  "SCHEMA_PROPERTY_MAX_LENGTH_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Schema property 'maxLength' not specified"
+  },
+  "SCHEMA_PROPERTY_MINIMUM_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Schema property 'minimum' not specified"
+  },
+  "SCHEMA_PROPERTY_MAXIMUM_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Schema property 'maximum' not specified"
+  },
+  "SCHEMA_PROPERTY_DESCRIPTION_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Schema property description must be not empty"
+  },
+  "SCHEMA_PROPERTY_MAX_ITEMS_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Schema property 'maxItems' not specified"
+  },
+  "SCHEMA_PROPERTY_EXAMPLE_REQUIRED": {
+    "severity": "INFO",
+    "message": "Schema property example not specified"
+  },
+  "API_RESPONSE_DESCRIPTION_REQUIRED": {
+    "severity": "CRITICAL",
+    "message": "Api response description must be not empty"
+  },
+  "API_RESPONSE_EXAMPLE_REQUIRED": {
+    "severity": "INFO",
+    "message": "Api response example not specified"
+  }
+}

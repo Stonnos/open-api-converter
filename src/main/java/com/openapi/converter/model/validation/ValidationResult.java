@@ -15,9 +15,9 @@ public class ValidationResult {
 
     private String schemaRef;
 
-    private String field;
-
-    private String message;
+    private String parameter;
 
     private String responseCode;
+
+    private String message;
 }

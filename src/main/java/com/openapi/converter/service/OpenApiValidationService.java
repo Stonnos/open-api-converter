@@ -197,7 +197,7 @@ public class OpenApiValidationService {
                                     .rule(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED)
                                     .severity(Severity.CRITICAL)
                                     .path(path)
-                                    .field(parameter.getName())
+                                    .parameter(parameter.getName())
                                     .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
                                     .build()
                     );
@@ -208,7 +208,7 @@ public class OpenApiValidationService {
                                     .rule(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED)
                                     .severity(Severity.INFO)
                                     .path(path)
-                                    .field(parameter.getName())
+                                    .parameter(parameter.getName())
                                     .message(Rule.REQUEST_PARAMETER_EXAMPLE_REQUIRED.getMessage())
                                     .build()
                     );
@@ -244,7 +244,7 @@ public class OpenApiValidationService {
                             .severity(Severity.CRITICAL)
                             .schemaRef(schema.getRef())
                             .path(path)
-                            .field(field)
+                            .parameter(field)
                             .message(Rule.REQUEST_PARAMETER_DESCRIPTION_REQUIRED.getMessage())
                             .build()
             );
@@ -261,7 +261,7 @@ public class OpenApiValidationService {
                             .severity(Severity.CRITICAL)
                             .schemaRef(schema.getRef())
                             .path(path)
-                            .field(field)
+                            .parameter(field)
                             .message(Rule.REQUEST_PARAMETER_MAXIMUM_REQUIRED.getMessage())
                             .build()
             );
@@ -274,7 +274,7 @@ public class OpenApiValidationService {
                             .severity(Severity.CRITICAL)
                             .schemaRef(schema.getRef())
                             .path(path)
-                            .field(field)
+                            .parameter(field)
                             .message(Rule.REQUEST_PARAMETER_MAX_LENGTH_REQUIRED.getMessage())
                             .build()
             );
@@ -286,7 +286,7 @@ public class OpenApiValidationService {
                             .severity(Severity.CRITICAL)
                             .schemaRef(schema.getRef())
                             .path(path)
-                            .field(field)
+                            .parameter(field)
                             .message(Rule.REQUEST_PARAMETER_MAX_ITEMS_REQUIRED.getMessage())
                             .build()
             );
