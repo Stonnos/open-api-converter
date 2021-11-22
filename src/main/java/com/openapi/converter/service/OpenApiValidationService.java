@@ -101,11 +101,6 @@ public class OpenApiValidationService {
         if (requestBody != null && !CollectionUtils.isEmpty(requestBody.getContent())) {
             var mediaType = requestBody.getContent().entrySet().iterator().next();
             var schema = mediaType.getValue().getSchema();
-            if (!CollectionUtils.isEmpty(schema.getProperties())) {
-                schema.getProperties().forEach((fieldName, schemaVal) ->
-                        validationResults.addAll(validateSchema(schema.getRef(), fieldName, schemaVal))
-                );
-            }
             if (mediaType.getValue().getExample() == null) {
                 validationResults.add(
                         validationResultHelper.buildValidationResult(Rule.REQUEST_BODY_EXAMPLE_REQUIRED, path,
