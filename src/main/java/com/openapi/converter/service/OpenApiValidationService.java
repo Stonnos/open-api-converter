@@ -27,6 +27,7 @@ import static com.openapi.converter.util.Utils.getOperation;
 import static com.openapi.converter.util.Utils.hasMaxItems;
 import static com.openapi.converter.util.Utils.hasMaxLength;
 import static com.openapi.converter.util.Utils.hasMaximum;
+import static com.openapi.converter.util.Utils.hasMinimum;
 
 /**
  * Open API validation service.
@@ -211,7 +212,7 @@ public class OpenApiValidationService {
                             schema.getRef(), field)
             );
         }
-        if (!hasMaximum(schema)) {
+        if (!hasMinimum(schema)) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_MINIMUM_REQUIRED, path,
                             schema.getRef(), field)
@@ -240,7 +241,7 @@ public class OpenApiValidationService {
                             parameter)
             );
         }
-        if (!hasMaximum(schema)) {
+        if (!hasMinimum(schema)) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.REQUEST_PARAMETER_MINIMUM_REQUIRED, path,
                             parameter)
