@@ -194,7 +194,7 @@ public class OpenApiValidationService {
     private List<ValidationResult> validateSchema(String ref, String field, Schema schema) {
         List<ValidationResult> validationResults = newArrayList();
         if (!ARRAY_TYPE.equals(schema.getType()) && StringUtils.isEmpty(schema.getRef()) &&
-                StringUtils.isEmpty(schema.getDescription())) {
+                CollectionUtils.isEmpty(schema.getOneOf()) && StringUtils.isEmpty(schema.getDescription())) {
             validationResults.add(
                     validationResultHelper.buildValidationResult(Rule.SCHEMA_PROPERTY_DESCRIPTION_REQUIRED, null,
                             ref, field)
