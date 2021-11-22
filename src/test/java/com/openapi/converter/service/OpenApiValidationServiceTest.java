@@ -30,7 +30,7 @@ import java.io.IOException;
         ValidationRuleService.class})
 class OpenApiValidationServiceTest {
 
-    @Value("classpath:api-docs/eca-oauth-api-docs.json")
+    @Value("classpath:api-docs/api-docs-for-validation.json")
     private Resource resource;
 
     @Inject
