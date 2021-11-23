@@ -187,7 +187,22 @@ public class OpenApiValidationService {
                         validationResults.addAll(validateSchema(ref, fieldName, schemaVal))
                 );
             }
+            validationResults.addAll(validateSchemaAllOf(ref, schema));
         });
+        return validationResults;
+    }
+
+    private List<ValidationResult> validateSchemaAllOf(String ref, Schema schema) {
+        List<ValidationResult> validationResults = newArrayList();
+        if (!CollectionUtils.isEmpty(schema.getAllOf())) {
+            schema.getAllOf().forEach(sch -> {
+                if (!CollectionUtils.isEmpty(sch.getProperties())) {
+                    sch.getProperties().forEach((fieldName, schemaVal) ->
+                            validationResults.addAll(validateSchema(ref, fieldName, schemaVal))
+                    );
+                }
+            });
+        }
         return validationResults;
     }
 
