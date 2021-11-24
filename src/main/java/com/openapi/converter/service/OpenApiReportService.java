@@ -130,14 +130,18 @@ public class OpenApiReportService {
                 .build();
     }
 
-    private List<FieldReport> buildSimpleFieldReports(Schema schema) {
-        var requiredFields = Optional.ofNullable(schema.getRequired())
-                .orElse(Collections.emptyList());
+    private List<FieldReport> buildSimpleFieldReports(Schema schema, List<String> requiredFields) {
         return schema.getProperties().entrySet()
                 .stream()
                 .map(entry -> buildFieldModel(entry.getKey(),
                         requiredFields.contains(entry.getKey()), entry.getValue()))
                 .collect(Collectors.toList());
+    }
+
+    private List<FieldReport> buildSimpleFieldReports(Schema schema) {
+        var requiredFields = Optional.ofNullable(schema.getRequired())
+                .orElse(Collections.emptyList());
+        return buildSimpleFieldReports(schema, requiredFields);
     }
 
     private List<FieldReport> buildAllOfFieldReports(Schema schema, Map<String, Schema> schemas) {
@@ -153,7 +157,8 @@ public class OpenApiReportService {
                     .collect(Collectors.toList());
             fieldReports.addAll(nextFields);
         }
-        var childFields = buildSimpleFieldReports(child);
+        var requiredFields = Optional.ofNullable(schema.getRequired()).orElse(Collections.emptyList());
+        var childFields = buildSimpleFieldReports(child, requiredFields);
         fieldReports.addAll(childFields);
         return fieldReports;
     }
