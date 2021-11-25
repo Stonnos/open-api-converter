@@ -1,4 +1,5 @@
 app:
   templateLocation: classpath:templates/template.adoc
+  validationRulesLocation: validation-rules.json
 server:
   port: 8094

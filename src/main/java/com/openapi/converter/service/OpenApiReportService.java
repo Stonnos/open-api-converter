@@ -9,11 +9,10 @@ import com.openapi.converter.dto.openapi.MediaType;
 import com.openapi.converter.dto.openapi.Oauth2Flow;
 import com.openapi.converter.dto.openapi.OpenAPI;
 import com.openapi.converter.dto.openapi.Operation;
-import com.openapi.converter.dto.openapi.OperationWrapper;
 import com.openapi.converter.dto.openapi.PathItem;
 import com.openapi.converter.dto.openapi.Schema;
 import com.openapi.converter.dto.openapi.SecurityScheme;
-import com.openapi.converter.exception.ReportException;
+import com.openapi.converter.exception.OperationNotSpecifiedException;
 import com.openapi.converter.mapping.OpenApiMapper;
 import com.openapi.converter.model.report.ApiResponseReport;
 import com.openapi.converter.model.report.ComponentReport;
@@ -25,12 +24,10 @@ import com.openapi.converter.model.report.SchemaReport;
 import com.openapi.converter.model.report.SecurityRequirementReport;
 import com.openapi.converter.model.report.SecuritySchemaReport;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,10 +35,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.openapi.converter.util.Utils.getOperation;
 
 /**
  * Open api report service.
@@ -133,14 +130,18 @@ public class OpenApiReportService {
                 .build();
     }
 
-    private List<FieldReport> buildSimpleFieldReports(Schema schema) {
-        var requiredFields = Optional.ofNullable(schema.getRequired())
-                .orElse(Collections.emptyList());
+    private List<FieldReport> buildSimpleFieldReports(Schema schema, List<String> requiredFields) {
         return schema.getProperties().entrySet()
                 .stream()
                 .map(entry -> buildFieldModel(entry.getKey(),
                         requiredFields.contains(entry.getKey()), entry.getValue()))
                 .collect(Collectors.toList());
+    }
+
+    private List<FieldReport> buildSimpleFieldReports(Schema schema) {
+        var requiredFields = Optional.ofNullable(schema.getRequired())
+                .orElse(Collections.emptyList());
+        return buildSimpleFieldReports(schema, requiredFields);
     }
 
     private List<FieldReport> buildAllOfFieldReports(Schema schema, Map<String, Schema> schemas) {
@@ -156,7 +157,8 @@ public class OpenApiReportService {
                     .collect(Collectors.toList());
             fieldReports.addAll(nextFields);
         }
-        var childFields = buildSimpleFieldReports(child);
+        var requiredFields = Optional.ofNullable(schema.getRequired()).orElse(Collections.emptyList());
+        var childFields = buildSimpleFieldReports(child, requiredFields);
         fieldReports.addAll(childFields);
         return fieldReports;
     }
@@ -235,8 +237,8 @@ public class OpenApiReportService {
 
     private MethodInfo buildMethodInfo(Map.Entry<String, PathItem> entry) {
         var operationModel = getOperation(entry.getValue())
-                .orElseThrow(() -> new ReportException(
-                        String.format("Can't handle operation for endpoint [%s]", entry.getKey())));
+                .orElseThrow(() -> new OperationNotSpecifiedException(
+                        String.format("Operation not specified for endpoint [%s]", entry.getKey())));
         var operation = operationModel.getOperation();
         var requestParameters = openApiMapper.map(operation.getParameters());
         var apiResponses = buildApiResponsesReport(operation);
@@ -268,20 +270,6 @@ public class OpenApiReportService {
             securityRequirementReports.add(securityRequirementModel);
         }));
         return securityRequirementReports;
-    }
-
-    private Optional<OperationWrapper> getOperation(PathItem pathItem) {
-        var operationWrapper = ObjectUtils.firstNonNull(
-                getOperationOrNull(pathItem, PathItem::getGet, RequestMethod.GET),
-                getOperationOrNull(pathItem, PathItem::getPost, RequestMethod.POST),
-                getOperationOrNull(pathItem, PathItem::getPut, RequestMethod.PUT),
-                getOperationOrNull(pathItem, PathItem::getDelete, RequestMethod.DELETE),
-                getOperationOrNull(pathItem, PathItem::getPatch, RequestMethod.PATCH),
-                getOperationOrNull(pathItem, PathItem::getOptions, RequestMethod.OPTIONS),
-                getOperationOrNull(pathItem, PathItem::getHead, RequestMethod.HEAD),
-                getOperationOrNull(pathItem, PathItem::getTrace, RequestMethod.TRACE)
-        );
-        return Optional.ofNullable(operationWrapper);
     }
 
     private RequestBodyReport buildRequestBodyReport(Operation operation) {
@@ -325,18 +313,6 @@ public class OpenApiReportService {
             apiResponseReport.setSchema(schemaReport);
         }
         return apiResponseReport;
-    }
-
-    private OperationWrapper getOperationOrNull(PathItem pathItem,
-                                                Function<PathItem, Operation> operationFunction,
-                                                RequestMethod requestMethod) {
-        return Optional.ofNullable(operationFunction.apply(pathItem))
-                .map(operation -> OperationWrapper
-                        .builder()
-                        .operation(operation)
-                        .requestMethod(requestMethod)
-                        .build()
-                ).orElse(null);
     }
 
     private String getBodyRef(Schema schema) {

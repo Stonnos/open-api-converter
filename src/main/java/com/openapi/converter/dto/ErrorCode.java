@@ -15,5 +15,10 @@ public enum ErrorCode {
     /**
      * Invalid file format
      */
-    INVALID_FILE_FORMAT
+    INVALID_FILE_FORMAT,
+
+    /**
+     * Operation not specified
+     */
+    OPERATION_NOT_SPECIFIED
 }

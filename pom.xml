@@ -29,6 +29,7 @@
         <docker-maven-plugin.version>1.4.13</docker-maven-plugin.version>
         <docker.image.name>${project.artifactId}</docker.image.name>
         <guava.version>30.0-jre</guava.version>
+        <commons.csv.version>1.8</commons.csv.version>
         <commons.io.version>2.8.0</commons.io.version>
         <jacoco-plugin.version>0.8.5</jacoco-plugin.version>
         <jacoco.minCoverage>0.60</jacoco.minCoverage>
@@ -81,6 +82,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons.csv.version}</version>
         </dependency>
 
         <dependency>
