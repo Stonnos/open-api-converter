@@ -20,5 +20,10 @@ public enum ErrorCode {
     /**
      * Operation not specified
      */
-    OPERATION_NOT_SPECIFIED
+    OPERATION_NOT_SPECIFIED,
+
+    /**
+     * Invalid format
+     */
+    INVALID_FORMAT,
 }
