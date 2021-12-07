@@ -77,7 +77,7 @@ public class OpenApiReader {
                     .block();
             Assert.notNull(openApiJson,
                     String.format("Expected not null response for url [%s]", openApiResourceDto.getUrl()));
-            log.info("Open api api docs has been fetched from [{}]", openApiResourceDto.getUrl());
+            log.info("Open api docs has been fetched from [{}]", openApiResourceDto.getUrl());
             var openApi = openApiObjectMapper.readValue(openApiJson, OpenAPI.class);
             log.info("Open api model has been read for [{}]", openApiResourceDto.getUrl());
             return openApi;

@@ -1,5 +1,6 @@
 package com.openapi.converter.controller;
 
+import com.openapi.converter.dto.OpenApiResourceDto;
 import com.openapi.converter.report.OpenApiValidationResultsCsvReportGenerator;
 import com.openapi.converter.service.OpenApiReader;
 import com.openapi.converter.service.OpenApiReportGenerator;
@@ -14,14 +15,19 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Rest controller for open api reports generation.
@@ -29,6 +35,7 @@ import java.nio.charset.StandardCharsets;
  * @author Roman Batygin
  */
 @Slf4j
+@Validated
 @Tag(name = "API for Open API reports generation")
 @RestController
 @RequestMapping("/v1/open-api/report")
@@ -66,6 +73,22 @@ public class OpenApiController {
         IOUtils.write(reportString, outputStream, StandardCharsets.UTF_8);
         outputStream.flush();
         log.info("Open api report file [{}] has been generated", reportName);
+    }
+
+    /**
+     * Generates Open API adoc reports zip archive.
+     *
+     * @param openApiResources - open api resources
+     * @throws Exception in case of error
+     */
+    @Operation(description = "Generates Open API adoc reports zip archive",
+            summary = "Generates Open API adoc reports zip archive")
+    @PostMapping(value = "/adoc/zip")
+    public void generateAsciiDocReportsZipArchive(
+            @RequestBody @NotEmpty @Valid List<OpenApiResourceDto> openApiResources,
+            HttpServletResponse httpServletResponse) throws Exception {
+        log.info("Request to generate adoc reports zip archive");
+        var openApis = openApiReader.readOpenApis(openApiResources);
     }
 
     /**
