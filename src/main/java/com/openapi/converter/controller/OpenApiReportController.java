@@ -6,6 +6,8 @@ import com.openapi.converter.service.OpenApiReportGenerator;
 import com.openapi.converter.service.OpenApiReportProcessor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +31,7 @@ import javax.validation.constraints.Size;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.openapi.converter.controller.docs.ApiExamples.OPEN_API_REPORTS_REQUEST_EXAMPLE;
 import static com.openapi.converter.dto.Constraints.OPEN_API_REQUESTS_MAX_SIZE;
 import static com.openapi.converter.util.ResponseHelper.setContentDisposition;
 
@@ -83,7 +86,13 @@ public class OpenApiReportController {
      * @throws Exception in case of error
      */
     @Operation(description = "Generates Open API adoc reports zip archive",
-            summary = "Generates Open API adoc reports zip archive")
+            summary = "Generates Open API adoc reports zip archive",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = {
+                    @Content(examples = {
+                            @ExampleObject(value = OPEN_API_REPORTS_REQUEST_EXAMPLE)
+                    })
+            })
+    )
     @PostMapping(value = "/adoc/zip")
     public void generateAsciiDocReportsZipArchive(
             @RequestBody @NotEmpty @Size(max = OPEN_API_REQUESTS_MAX_SIZE)
