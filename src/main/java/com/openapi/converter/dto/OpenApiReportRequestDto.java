@@ -2,6 +2,7 @@ package com.openapi.converter.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -18,6 +19,7 @@ public class OpenApiReportRequestDto {
      * Service base url
      */
     @NotEmpty
+    @URL
     @Schema(description = "Service base url")
     private String url;
 
