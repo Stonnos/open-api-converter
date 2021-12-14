@@ -6,13 +6,13 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * Open api resource dto model.
+ * Open api report request dto model.
  *
  * @author Roman Batygin
  */
 @Data
-@Schema(description = "Open api resource dto model")
-public class OpenApiResourceDto {
+@Schema(description = "Open api report request dto model")
+public class OpenApiReportRequestDto {
 
     /**
      * Service base url
@@ -22,8 +22,9 @@ public class OpenApiResourceDto {
     private String url;
 
     /**
-     * Use ssl?
+     * Report file name.
      */
-    @Schema(description = "Use ssl?")
-    private boolean useSsl;
+    @NotEmpty
+    @Schema(description = "Report file name")
+    private String reportFileName;
 }

@@ -7,7 +7,7 @@ import com.openapi.converter.dto.ErrorCode;
  *
  * @author Roman Batygin
  */
-public class OperationNotSpecifiedException extends ValidationErrorException {
+public class OperationNotSpecifiedException extends OpenApiErrorException {
 
     /**
      * Creates exception object.

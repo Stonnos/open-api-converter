@@ -7,7 +7,7 @@ import com.openapi.converter.dto.ErrorCode;
  *
  * @author Roman Batygin
  */
-public class InvalidFileExtensionException extends ValidationErrorException {
+public class InvalidFileExtensionException extends OpenApiErrorException {
 
     /**
      * Creates exception object.

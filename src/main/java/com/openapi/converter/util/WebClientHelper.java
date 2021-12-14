@@ -1,6 +1,6 @@
 package com.openapi.converter.util;
 
-import com.openapi.converter.dto.OpenApiResourceDto;
+import com.openapi.converter.dto.OpenApiReportRequestDto;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import lombok.experimental.UtilityClass;
@@ -20,15 +20,17 @@ import javax.net.ssl.SSLException;
 @UtilityClass
 public class WebClientHelper {
 
+    private static final String HTTPS_PREFIX = "https://";
+
     /**
      * Creates and initialize web client.
      *
-     * @param openApiResourceDto - open api resource dto
+     * @param openApiReportRequestDto - open api resource dto
      * @return web client
      */
-    public static WebClient createWebClient(OpenApiResourceDto openApiResourceDto) {
-        var webClientBuilder = WebClient.builder().baseUrl(openApiResourceDto.getUrl());
-        if (openApiResourceDto.isUseSsl()) {
+    public static WebClient createWebClient(OpenApiReportRequestDto openApiReportRequestDto) {
+        var webClientBuilder = WebClient.builder().baseUrl(openApiReportRequestDto.getUrl());
+        if (openApiReportRequestDto.getUrl().startsWith(HTTPS_PREFIX)) {
             initializeSslContext(webClientBuilder);
         }
         return webClientBuilder.build();

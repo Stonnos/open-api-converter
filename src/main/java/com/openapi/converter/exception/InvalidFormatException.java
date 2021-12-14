@@ -7,7 +7,7 @@ import com.openapi.converter.dto.ErrorCode;
  *
  * @author Roman Batygin
  */
-public class InvalidFormatException extends ValidationErrorException {
+public class InvalidFormatException extends OpenApiErrorException {
 
     /**
      * Creates exception object.

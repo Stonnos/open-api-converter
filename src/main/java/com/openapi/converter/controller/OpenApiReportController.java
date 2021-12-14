@@ -1,10 +1,9 @@
 package com.openapi.converter.controller;
 
-import com.openapi.converter.dto.OpenApiResourceDto;
-import com.openapi.converter.report.OpenApiValidationResultsCsvReportGenerator;
+import com.openapi.converter.dto.OpenApiReportRequestDto;
 import com.openapi.converter.service.OpenApiReader;
 import com.openapi.converter.service.OpenApiReportGenerator;
-import com.openapi.converter.service.OpenApiValidationService;
+import com.openapi.converter.service.OpenApiReportProcessor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,6 +27,8 @@ import javax.validation.constraints.NotEmpty;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.openapi.converter.util.ResponseHelper.setContentDisposition;
+
 /**
  * Rest controller for open api reports generation.
  *
@@ -40,16 +40,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/open-api/report")
 @RequiredArgsConstructor
-public class OpenApiController {
+public class OpenApiReportController {
 
-    private static final String ATTACHMENT_FORMAT = "attachment; filename=%s";
     private static final String ASCII_DOC_REPORT_NAME = "%s.adoc";
-    private static final String VALIDATION_RESULTS_REPORT_NAME = "%s-validation-results.zip";
+    private static final String OPEN_API_REPORTS_ZIP = "open-api-reports.zip";
 
     private final OpenApiReader openApiReader;
+    private final OpenApiReportProcessor openApiReportProcessor;
     private final OpenApiReportGenerator openApiReportGenerator;
-    private final OpenApiValidationService openApiValidationService;
-    private final OpenApiValidationResultsCsvReportGenerator openApiValidationResultsCsvReportGenerator;
 
     /**
      * Generates Open API report in adoc format.
@@ -65,11 +63,11 @@ public class OpenApiController {
             HttpServletResponse httpServletResponse) throws Exception {
         log.info("Starting to generate adoc report for file [{}]", openApiJson.getOriginalFilename());
         var openApi = openApiReader.read(openApiJson);
-        var reportString = openApiReportGenerator.generateAsciiDocReport(openApi);
+        var reportString = openApiReportProcessor.processAsciiDocReport(openApi);
         var fileBaseName = FilenameUtils.getBaseName(openApiJson.getOriginalFilename());
         String reportName = String.format(ASCII_DOC_REPORT_NAME, fileBaseName);
         @Cleanup var outputStream = httpServletResponse.getOutputStream();
-        setResponseHeaders(httpServletResponse, reportName);
+        setContentDisposition(httpServletResponse, reportName);
         IOUtils.write(reportString, outputStream, StandardCharsets.UTF_8);
         outputStream.flush();
         log.info("Open api report file [{}] has been generated", reportName);
@@ -78,47 +76,20 @@ public class OpenApiController {
     /**
      * Generates Open API adoc reports zip archive.
      *
-     * @param openApiResources - open api resources
+     * @param openApiReportRequests - open api report requests
      * @throws Exception in case of error
      */
     @Operation(description = "Generates Open API adoc reports zip archive",
             summary = "Generates Open API adoc reports zip archive")
     @PostMapping(value = "/adoc/zip")
     public void generateAsciiDocReportsZipArchive(
-            @RequestBody @NotEmpty @Valid List<OpenApiResourceDto> openApiResources,
+            @RequestBody @NotEmpty @Valid List<OpenApiReportRequestDto> openApiReportRequests,
             HttpServletResponse httpServletResponse) throws Exception {
         log.info("Request to generate adoc reports zip archive");
-        var openApis = openApiReader.readOpenApis(openApiResources);
-    }
-
-    /**
-     * Generates Open API validation results report archive.
-     *
-     * @param openApiJson - open api json file
-     * @throws Exception in case of error
-     */
-    @Operation(description = "Generates Open API validation results report archive",
-            summary = "Generates Open API validation results report archive")
-    @PostMapping(value = "/validation", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public void generateValidationResultsReport(
-            @Parameter(description = "Open api json file (swagger.json)") @RequestParam MultipartFile openApiJson,
-            HttpServletResponse httpServletResponse) throws Exception {
-        log.info("Starting to generate open api validation results report for file [{}]",
-                openApiJson.getOriginalFilename());
-        var openApi = openApiReader.read(openApiJson);
-        var validationResults = openApiValidationService.validate(openApi);
-        var fileBaseName = FilenameUtils.getBaseName(openApiJson.getOriginalFilename());
-        String reportName = String.format(VALIDATION_RESULTS_REPORT_NAME, fileBaseName);
+        var openApis = openApiReader.readOpenApis(openApiReportRequests);
         @Cleanup var outputStream = httpServletResponse.getOutputStream();
-        setResponseHeaders(httpServletResponse, reportName);
-        log.info("Starting to generate validation results report [{}] archive", reportName);
-        openApiValidationResultsCsvReportGenerator.generateReport(validationResults, outputStream);
+        setContentDisposition(httpServletResponse, OPEN_API_REPORTS_ZIP);
+        openApiReportGenerator.generate(openApiReportRequests, openApis, outputStream);
         outputStream.flush();
-        log.info("Open api validation results report [{}] archive has been generated", reportName);
-    }
-
-    private void setResponseHeaders(HttpServletResponse httpServletResponse, String reportName) {
-        httpServletResponse.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        httpServletResponse.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format(ATTACHMENT_FORMAT, reportName));
     }
 }
