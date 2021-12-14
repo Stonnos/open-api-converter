@@ -5,6 +5,11 @@ import lombok.Data;
 import org.hibernate.validator.constraints.URL;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+
+import static com.openapi.converter.dto.Constraints.REPORT_FILE_NAME_MAX_LENGTH;
+import static com.openapi.converter.dto.Constraints.STRING_MAX_LENGTH_255;
+import static com.openapi.converter.dto.Constraints.STRING_MIN_LENGTH_1;
 
 /**
  * Open api report request dto model.
@@ -20,6 +25,7 @@ public class OpenApiReportRequestDto {
      */
     @NotEmpty
     @URL
+    @Size(min = STRING_MIN_LENGTH_1, max = STRING_MAX_LENGTH_255)
     @Schema(description = "Service base url")
     private String url;
 
@@ -27,6 +33,7 @@ public class OpenApiReportRequestDto {
      * Report file name.
      */
     @NotEmpty
+    @Size(min = STRING_MIN_LENGTH_1, max = REPORT_FILE_NAME_MAX_LENGTH)
     @Schema(description = "Report file name")
     private String reportFileName;
 }

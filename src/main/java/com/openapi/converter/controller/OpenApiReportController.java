@@ -24,9 +24,12 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static com.openapi.converter.dto.Constraints.OPEN_API_REQUESTS_MAX_SIZE;
 import static com.openapi.converter.util.ResponseHelper.setContentDisposition;
 
 /**
@@ -83,7 +86,8 @@ public class OpenApiReportController {
             summary = "Generates Open API adoc reports zip archive")
     @PostMapping(value = "/adoc/zip")
     public void generateAsciiDocReportsZipArchive(
-            @RequestBody @NotEmpty @Valid List<OpenApiReportRequestDto> openApiReportRequests,
+            @RequestBody @NotEmpty @Size(max = OPEN_API_REQUESTS_MAX_SIZE)
+            @Valid List<@NotNull OpenApiReportRequestDto> openApiReportRequests,
             HttpServletResponse httpServletResponse) throws Exception {
         log.info("Request to generate adoc reports zip archive");
         var openApis = openApiReader.readOpenApis(openApiReportRequests);
