@@ -41,7 +41,7 @@ public class ErrorHandler {
     @ExceptionHandler(OpenApiErrorException.class)
     public ResponseEntity<ResponseDto<Void>> handleValidationError(OpenApiErrorException ex) {
         log.error("Got validation error [{}]: {}", ex.getErrorCode(), ex.getMessage());
-        var responseDto = buildErrorResponse(ex.getErrorCode());
+        var responseDto = buildErrorResponse(ex.getErrorCode(), ex.getMessage());
         return ResponseEntity.badRequest().body(responseDto);
     }
 

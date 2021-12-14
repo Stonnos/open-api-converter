@@ -22,13 +22,15 @@ public class ResponseHelper {
     /**
      * Builds error response.
      *
-     * @param errorCode - error code
+     * @param errorCode    - error code
+     * @param errorMessage - error message
      * @return error response
      */
-    public static ResponseDto<Void> buildErrorResponse(ErrorCode errorCode) {
+    public static ResponseDto<Void> buildErrorResponse(ErrorCode errorCode, String errorMessage) {
         return ResponseDto.<Void>builder()
                 .status(ResponseStatus.ERROR)
                 .errorCode(errorCode.name())
+                .errorMessage(errorMessage)
                 .build();
     }
 
