@@ -13,8 +13,11 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static com.google.common.collect.Maps.newHashMap;
 
 /**
  * Open api generator service.
@@ -27,6 +30,7 @@ import java.util.zip.ZipOutputStream;
 public class OpenApiReportGenerator {
 
     private static final String ASCII_DOC_REPORT_NAME = "%s.adoc";
+    private static final String ASCII_DOC_REPORT_NAME_WITH_INDEX = "%s (%d).adoc";
 
     private final OpenApiReportProcessor openApiReportProcessor;
 
@@ -42,12 +46,13 @@ public class OpenApiReportGenerator {
                          List<OpenAPI> openApis,
                          OutputStream outputStream) throws IOException {
         log.info("Starting to generate open api reports zip archive");
+        Map<String, Integer> reportNamesCounter = newHashMap();
         @Cleanup var zipOutputStream = new ZipOutputStream(outputStream);
         @Cleanup var writer = new OutputStreamWriter(zipOutputStream, StandardCharsets.UTF_8);
         for (int i = 0; i < openApiReportRequests.size(); i++) {
             log.info("Starting to generate report with index [{}]", i);
-            var openApiResource = openApiReportRequests.get(i);
-            String fileName = String.format(ASCII_DOC_REPORT_NAME, openApiResource.getReportFileName());
+            var apiReportRequestDto = openApiReportRequests.get(i);
+            String fileName = generateFileName(apiReportRequestDto, reportNamesCounter);
             zipOutputStream.putNextEntry(new ZipEntry(fileName));
             var openApi = openApis.get(i);
             String reportString = openApiReportProcessor.processAsciiDocReport(openApi);
@@ -58,5 +63,19 @@ public class OpenApiReportGenerator {
             zipOutputStream.closeEntry();
             log.info("Report with index [{}] has been put into archive", i);
         }
+    }
+
+    private String generateFileName(OpenApiReportRequestDto apiReportRequestDto,
+                                    Map<String, Integer> reportNamesCounter) {
+        String fileName;
+        var counter = reportNamesCounter.getOrDefault(apiReportRequestDto.getReportFileName(), 0);
+        if (counter == 0) {
+            fileName = String.format(ASCII_DOC_REPORT_NAME, apiReportRequestDto.getReportFileName());
+        } else {
+            fileName =
+                    String.format(ASCII_DOC_REPORT_NAME_WITH_INDEX, apiReportRequestDto.getReportFileName(), counter);
+        }
+        reportNamesCounter.put(apiReportRequestDto.getReportFileName(), ++counter);
+        return fileName;
     }
 }
