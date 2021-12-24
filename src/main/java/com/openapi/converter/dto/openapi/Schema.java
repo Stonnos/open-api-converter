@@ -94,7 +94,7 @@ public class Schema {
     /**
      * Additional properties map
      */
-    private Map<String, String> additionalProperties;
+    private Object additionalProperties;
     /**
      * Schema description
      */

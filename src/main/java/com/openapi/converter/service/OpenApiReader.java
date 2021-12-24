@@ -57,6 +57,7 @@ public class OpenApiReader {
             log.info("File [{}] has been read", multipartFile.getOriginalFilename());
             return openApi;
         } catch (IOException ex) {
+            log.error("Error while read swagger json [{}]: {}", multipartFile.getOriginalFilename(), ex.getMessage());
             throw new InvalidFileFormatException(
                     String.format("Invalid file [%s] format", multipartFile.getOriginalFilename()));
         }
