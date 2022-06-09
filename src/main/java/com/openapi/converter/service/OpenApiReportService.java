@@ -98,7 +98,7 @@ public class OpenApiReportService {
         var paths = Optional.ofNullable(openAPI.getPaths()).orElse(Collections.emptyMap());
         var methods = paths.entrySet()
                 .stream()
-                .map(this::buildMethodInfo)
+                .map(entry -> buildMethodInfo(entry, openAPI))
                 .collect(Collectors.toList());
         log.info("[{}] methods report has been build", methods.size());
         return methods;
@@ -235,15 +235,15 @@ public class OpenApiReportService {
         return schemaItemsReports;
     }
 
-    private MethodInfo buildMethodInfo(Map.Entry<String, PathItem> entry) {
+    private MethodInfo buildMethodInfo(Map.Entry<String, PathItem> entry, OpenAPI openAPI) {
         var operationModel = getOperation(entry.getValue())
                 .orElseThrow(() -> new OperationNotSpecifiedException(
                         String.format("Operation not specified for endpoint [%s]", entry.getKey())));
         var operation = operationModel.getOperation();
         var requestParameters = openApiMapper.map(operation.getParameters());
-        var apiResponses = buildApiResponsesReport(operation);
+        var apiResponses = buildApiResponsesReport(operation, openAPI);
         log.info("[{}] api responses has been built for method [{}]", apiResponses.size(), entry.getKey());
-        var requestBodyModel = buildRequestBodyReport(operation);
+        var requestBodyModel = buildRequestBodyReport(operation, openAPI);
         var securityRequirementModel = buildSecurityRequirementReports(operation);
         return MethodInfo.builder()
                 .requestType(operationModel.getRequestMethod().name())
@@ -272,7 +272,7 @@ public class OpenApiReportService {
         return securityRequirementReports;
     }
 
-    private RequestBodyReport buildRequestBodyReport(Operation operation) {
+    private RequestBodyReport buildRequestBodyReport(Operation operation, OpenAPI openAPI) {
         return Optional.ofNullable(operation.getRequestBody())
                 .map(requestBody -> {
                     RequestBodyReport requestBodyReport = openApiMapper.map(requestBody);
@@ -284,23 +284,23 @@ public class OpenApiReportService {
                         requestBodyReport.setSchema(schemaReport);
                         var schemaReports = buildFieldReports(schema, Collections.emptyMap());
                         requestBodyReport.setSchemaProperties(schemaReports);
-                        requestBodyReport.setExample(getExample(mediaType.getValue()));
+                        requestBodyReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
                     }
                     return requestBodyReport;
                 }).orElse(null);
     }
 
-    private List<ApiResponseReport> buildApiResponsesReport(Operation operation) {
+    private List<ApiResponseReport> buildApiResponsesReport(Operation operation, OpenAPI openAPI) {
         if (CollectionUtils.isEmpty(operation.getResponses())) {
             return Collections.emptyList();
         }
         return operation.getResponses().entrySet()
                 .stream()
-                .map(entry -> buildApiResponseReport(entry.getKey(), entry.getValue()))
+                .map(entry -> buildApiResponseReport(entry.getKey(), entry.getValue(), openAPI))
                 .collect(Collectors.toList());
     }
 
-    private ApiResponseReport buildApiResponseReport(String responseCode, ApiResponse apiResponse) {
+    private ApiResponseReport buildApiResponseReport(String responseCode, ApiResponse apiResponse, OpenAPI openAPI) {
         ApiResponseReport apiResponseReport = new ApiResponseReport();
         apiResponseReport.setResponseCode(responseCode);
         apiResponseReport.setDescription(apiResponse.getDescription());
@@ -308,7 +308,7 @@ public class OpenApiReportService {
             var mediaType = apiResponse.getContent().entrySet().iterator().next();
             var schema = mediaType.getValue().getSchema();
             apiResponseReport.setContentType(mediaType.getKey());
-            apiResponseReport.setExample(getExample(mediaType.getValue()));
+            apiResponseReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
             var schemaReport = buildSchemaReport(schema);
             apiResponseReport.setSchema(schemaReport);
         }
@@ -322,16 +322,46 @@ public class OpenApiReportService {
                 .orElse(null);
     }
 
-    private String getExample(MediaType mediaType) {
-        if (mediaType.getExample() == null) {
-            return null;
-        } else {
-            try {
-                return exampleObjectMapper.writeValueAsString(mediaType.getExample());
-            } catch (JsonProcessingException ex) {
-                log.error("Can't serialize example to json: {}", ex.getMessage());
-                return String.valueOf(mediaType.getExample());
+    private String getExampleAsJsonString(MediaType mediaType, OpenAPI openAPI) {
+        Object exampleValue = getExampleValue(mediaType, openAPI);
+        return convertExampleToJsonString(exampleValue);
+    }
+
+    private Object getExampleValue(MediaType mediaType, OpenAPI openAPI) {
+        if (!CollectionUtils.isEmpty(mediaType.getExamples())) {
+            var example = mediaType.getExamples().values().iterator().next();
+            if (StringUtils.isNotEmpty(example.getRef())) {
+                String exampleKey = StringUtils.substringAfterLast(example.getRef(), SLASH_SEPARATOR);
+                return getExampleValueByKey(exampleKey, openAPI);
+            } else if (example.getValue() != null) {
+                return example.getValue();
             }
+        }
+        return mediaType.getExample();
+    }
+
+    private Object getExampleValueByKey(String key, OpenAPI openAPI) {
+        if (Optional.ofNullable(openAPI.getComponents()).isPresent() &&
+                !CollectionUtils.isEmpty(openAPI.getComponents().getExamples())) {
+            var example = openAPI.getComponents().getExamples().get(key);
+            if (example == null) {
+                log.warn("Can't find example with key [{}]", key);
+            } else {
+                return example.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String convertExampleToJsonString(Object exampleValue) {
+        if (exampleValue == null) {
+            return null;
+        }
+        try {
+            return exampleObjectMapper.writeValueAsString(exampleValue);
+        } catch (JsonProcessingException ex) {
+            log.error("Can't serialize example to json: {}", ex.getMessage());
+            return String.valueOf(exampleValue);
         }
     }
 
