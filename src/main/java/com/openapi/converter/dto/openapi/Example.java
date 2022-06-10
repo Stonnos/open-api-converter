@@ -22,7 +22,7 @@ public class Example {
     /**
      * Example value
      */
-    private String value;
+    private Object value;
     /**
      * External value
      */
