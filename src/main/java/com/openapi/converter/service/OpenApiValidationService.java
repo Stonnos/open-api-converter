@@ -24,6 +24,7 @@ import java.util.Optional;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.openapi.converter.util.Utils.countBySeverity;
 import static com.openapi.converter.util.Utils.getOperation;
+import static com.openapi.converter.util.Utils.hasExample;
 import static com.openapi.converter.util.Utils.hasMaxItems;
 import static com.openapi.converter.util.Utils.hasMaxLength;
 import static com.openapi.converter.util.Utils.hasMaximum;
@@ -103,7 +104,7 @@ public class OpenApiValidationService {
         if (requestBody != null && !CollectionUtils.isEmpty(requestBody.getContent())) {
             var mediaType = requestBody.getContent().entrySet().iterator().next();
             var schema = mediaType.getValue().getSchema();
-            if (mediaType.getValue().getExample() == null) {
+            if (!hasExample(mediaType.getValue())) {
                 validationResults.add(
                         validationResultHelper.buildValidationResult(Rule.REQUEST_BODY_EXAMPLE_REQUIRED, path,
                                 schema.getRef(), null)
@@ -300,7 +301,7 @@ public class OpenApiValidationService {
                             responseCode)
             );
         }
-        if (mediaType.getValue().getExample() == null) {
+        if (!hasExample(mediaType.getValue())) {
             validationResults.add(
                     validationResultHelper.buildResponseValidationResult(Rule.API_RESPONSE_EXAMPLE_REQUIRED, path,
                             responseCode)

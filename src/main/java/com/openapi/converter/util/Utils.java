@@ -1,5 +1,7 @@
 package com.openapi.converter.util;
 
+import com.openapi.converter.dto.openapi.Example;
+import com.openapi.converter.dto.openapi.MediaType;
 import com.openapi.converter.dto.openapi.Operation;
 import com.openapi.converter.dto.openapi.OperationWrapper;
 import com.openapi.converter.dto.openapi.PathItem;
@@ -9,6 +11,7 @@ import com.openapi.converter.model.validation.ValidationResult;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.util.List;
@@ -71,6 +74,29 @@ public class Utils {
     public static boolean hasMaxItems(Schema schema) {
         return StringUtils.isEmpty(schema.getType()) || !ARRAY_TYPE.equals(schema.getType()) ||
                 schema.getMaxItems() != null;
+    }
+
+    /**
+     * Checks that media type has example.
+     *
+     * @param mediaType - media type
+     * @return {@code true} if media type has example, {@code false} otherwise
+     */
+    public static boolean hasExample(MediaType mediaType) {
+        return mediaType.getExample() != null ||
+                (!CollectionUtils.isEmpty(mediaType.getExamples()) &&
+                        mediaType.getExamples().values().stream().anyMatch(Utils::hasExample));
+    }
+
+    /**
+     * Checks that example is not empty.
+     *
+     * @param example - example object
+     * @return {@code true} if example is not empty, {@code false} otherwise
+     */
+    public static boolean hasExample(Example example) {
+        return example.getValue() != null || StringUtils.isNotEmpty(example.getRef()) ||
+                StringUtils.isNotEmpty(example.getExternalValue());
     }
 
     /**
