@@ -10,8 +10,8 @@
 
 == Необходмый софт
 
-* Openjdk 1.11
-* maven >= 3.6
+* Openjdk 17
+* maven >= 3.9.2
 
 == Описание ключевой конфигурации модуля
 
@@ -28,7 +28,7 @@
 
 2. Запустить проект с помощью команды:
 
-   java -jar target/open-api-converter.war
+   java -jar target/open-api-converter.jar
 
 3. Страница со swagger-ui находится по адресу:
 
