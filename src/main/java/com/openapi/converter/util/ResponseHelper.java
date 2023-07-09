@@ -3,11 +3,10 @@ package com.openapi.converter.util;
 import com.openapi.converter.dto.ErrorCode;
 import com.openapi.converter.dto.ResponseDto;
 import com.openapi.converter.dto.ResponseStatus;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.experimental.UtilityClass;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Response helper class.

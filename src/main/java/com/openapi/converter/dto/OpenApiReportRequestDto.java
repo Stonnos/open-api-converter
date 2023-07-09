@@ -1,11 +1,10 @@
 package com.openapi.converter.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
 
 import static com.openapi.converter.dto.Constraints.REPORT_FILE_NAME_MAX_LENGTH;
 import static com.openapi.converter.dto.Constraints.STRING_MAX_LENGTH_255;

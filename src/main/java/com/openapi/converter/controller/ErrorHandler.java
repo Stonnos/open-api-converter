@@ -5,6 +5,8 @@ import com.openapi.converter.dto.ErrorCode;
 import com.openapi.converter.dto.ResponseDto;
 import com.openapi.converter.dto.ValidationErrorDto;
 import com.openapi.converter.exception.OpenApiErrorException;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.metadata.ConstraintDescriptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -13,8 +15,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.validation.ConstraintViolationException;
-import javax.validation.metadata.ConstraintDescriptor;
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Optional;

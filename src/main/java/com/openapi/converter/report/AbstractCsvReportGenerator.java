@@ -29,16 +29,22 @@ public abstract class AbstractCsvReportGenerator<T> implements ReportGenerator<T
         @Cleanup var writer = new OutputStreamWriter(zipOutputStream, StandardCharsets.UTF_8);
 
         zipOutputStream.putNextEntry(new ZipEntry(getSimpleReportName()));
-        var resultsPrinter = new CSVPrinter(writer, CSVFormat.EXCEL.withHeader(getSimpleReportHeaders())
-                .withDelimiter(HEADER_DELIMITER));
+        var resultsCsvFormat = CSVFormat.EXCEL.builder()
+                .setHeader(getSimpleReportHeaders())
+                .setDelimiter(HEADER_DELIMITER)
+                .build();
+        var resultsPrinter = new CSVPrinter(writer, resultsCsvFormat);
         printSimpleReport(resultsPrinter, data);
         writer.flush();
         zipOutputStream.flush();
         zipOutputStream.closeEntry();
 
         zipOutputStream.putNextEntry(new ZipEntry(getTotalReportName()));
-        var totalPrinter = new CSVPrinter(writer, CSVFormat.EXCEL.withHeader(getTotalReportHeaders())
-                .withDelimiter(HEADER_DELIMITER));
+        var totalCsvFormat = CSVFormat.EXCEL.builder()
+                .setHeader(getTotalReportHeaders())
+                .setDelimiter(HEADER_DELIMITER)
+                .build();
+        var totalPrinter = new CSVPrinter(writer, totalCsvFormat);
         printTotalReport(totalPrinter, data);
         writer.flush();
         zipOutputStream.flush();

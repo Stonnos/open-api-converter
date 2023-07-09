@@ -2,8 +2,6 @@ package com.openapi.converter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * Open api converter main class.
@@ -11,12 +9,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  * @author Roman Batygin
  */
 @SpringBootApplication
-public class OpenApiConverterApplication extends SpringBootServletInitializer {
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(OpenApiConverterApplication.class);
-    }
+public class OpenApiConverterApplication {
 
     /**
      * Runs application.
