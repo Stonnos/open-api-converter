@@ -20,7 +20,7 @@
         <lombok.version>1.18.26</lombok.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <assertj.core.version>3.24.2</assertj.core.version>
-        <org.apache.commons.lang3.version>3.7</org.apache.commons.lang3.version>
+        <org.apache.commons.lang3.version>3.12.0</org.apache.commons.lang3.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <springdoc.openapi.version>2.1.0</springdoc.openapi.version>
         <inject.version>1</inject.version>
