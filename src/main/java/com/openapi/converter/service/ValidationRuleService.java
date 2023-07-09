@@ -6,13 +6,13 @@ import com.openapi.converter.config.AppProperties;
 import com.openapi.converter.exception.ValidationRuleNotFoundException;
 import com.openapi.converter.model.validation.Rule;
 import com.openapi.converter.model.validation.ValidationRuleConfig;
+import jakarta.annotation.PostConstruct;
 import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Map;
 

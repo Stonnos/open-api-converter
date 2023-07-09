@@ -371,9 +371,13 @@ public class OpenApiReportService {
         }
         var securitySchemaReports = openAPI.getComponents()
                 .getSecuritySchemes()
-                .values()
+                .entrySet()
                 .stream()
-                .map(this::buildSecuritySchemeReport)
+                .map(entry -> {
+                    var securitySchemaReport = buildSecuritySchemeReport(entry.getValue());
+                    securitySchemaReport.setName(entry.getKey());
+                    return securitySchemaReport;
+                })
                 .collect(Collectors.toList());
         log.info("[{}] security schema report has been build", securitySchemaReports.size());
         return securitySchemaReports;

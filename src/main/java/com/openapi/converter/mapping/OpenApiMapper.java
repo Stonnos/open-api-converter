@@ -86,6 +86,7 @@ public interface OpenApiMapper {
      * @return security scheme report
      */
     @Mapping(target = "oauth2Flows", ignore = true)
+    @Mapping(target = "name", ignore = true)
     SecuritySchemaReport map(SecurityScheme securityScheme);
 
     /**
