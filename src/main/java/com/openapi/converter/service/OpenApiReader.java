@@ -34,7 +34,7 @@ import static com.openapi.converter.util.WebClientHelper.createWebClient;
 public class OpenApiReader {
 
     private static final String JSON_EXTENSION = "json";
-    private static final String API_DOCS_URL = "/v3/api-docs/";
+    private static final String API_DOCS_URL = "/v3/api-docs";
 
     private final ObjectMapper openApiObjectMapper;
 
