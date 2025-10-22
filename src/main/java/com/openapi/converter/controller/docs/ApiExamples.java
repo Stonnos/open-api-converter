@@ -20,5 +20,7 @@ public class ApiExamples {
             "\"reportFileName\": \"eca-ers-api-docs\"}, {\"url\": \"http://localhost:8080/eca-mail\", " +
             "\"reportFileName\": \"eca-mail-api-docs\"}, {\"url\": \"http://localhost:8080/eca-audit-log\", " +
             "\"reportFileName\": \"eca-audit-log-api-docs\"}, {\"url\": \"http://localhost:8080/external-api\", " +
-            "\"reportFileName\": \"external-api-docs\"}]";
+            "\"reportFileName\": \"external-api-docs\"}, {\"url\": \"http://localhost:8080/eca-data-loader\", " +
+            "\"reportFileName\": \"data-loader-api-docs\"}, {\"url\": \"http://localhost:8080/eca-web-push\", " +
+            "\"reportFileName\": \"eca-web-push-api-docs\"}]" ;
 }

@@ -6,11 +6,11 @@ import lombok.Cleanup;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.Resource;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,9 +31,9 @@ class OpenApiConverterTest {
     @Value("classpath*:api-docs/**/*.json")
     private Resource[] resources;
 
-    @Inject
+    @Autowired
     private ObjectMapper openApiObjectMapper;
-    @Inject
+    @Autowired
     private OpenApiReportProcessor openApiReportProcessor;
 
     @Test

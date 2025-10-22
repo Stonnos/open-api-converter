@@ -23,7 +23,6 @@
         <org.apache.commons.lang3.version>3.12.0</org.apache.commons.lang3.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <springdoc.openapi.version>2.1.0</springdoc.openapi.version>
-        <inject.version>1</inject.version>
         <docker-maven-plugin.version>1.4.13</docker-maven-plugin.version>
         <docker.image.name>${project.artifactId}</docker.image.name>
         <guava.version>32.1.1-jre</guava.version>
@@ -48,13 +47,6 @@
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/javax.inject/javax.inject -->
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>${inject.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-logging -->

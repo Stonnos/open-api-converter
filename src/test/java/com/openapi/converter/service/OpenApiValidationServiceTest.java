@@ -1,13 +1,13 @@
 package com.openapi.converter.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.openapi.converter.config.AppProperties;
 import com.openapi.converter.config.OpenApiConverterConfiguration;
 import com.openapi.converter.dto.openapi.OpenAPI;
 import lombok.Cleanup;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
@@ -15,7 +15,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.inject.Inject;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,9 +36,9 @@ class OpenApiValidationServiceTest {
     @Value("classpath:api-docs/api-docs-for-validation.json")
     private Resource resource;
 
-    @Inject
+    @Autowired
     private ObjectMapper openApiObjectMapper;
-    @Inject
+    @Autowired
     private OpenApiValidationService openApiValidationService;
 
     private OpenAPI openApi;
