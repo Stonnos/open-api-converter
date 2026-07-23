@@ -14,6 +14,9 @@
 -
 </#if>
 a|
+<#if apiResponse.exampleExternalRef??>
+link:${apiResponse.exampleExternalRef}[Example]
+</#if>
 <#if apiResponse.example??>
 [source,json]
 ----

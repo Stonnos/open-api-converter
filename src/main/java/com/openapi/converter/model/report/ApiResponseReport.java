@@ -27,6 +27,10 @@ public class ApiResponseReport {
      */
     private String example;
     /**
+     * Example external reference
+     */
+    private String exampleExternalRef;
+    /**
      * Schema report
      */
     private SchemaReport schema;

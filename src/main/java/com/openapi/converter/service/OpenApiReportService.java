@@ -291,7 +291,12 @@ public class OpenApiReportService {
                         requestBodyReport.setSchema(schemaReport);
                         var schemaReports = buildFieldReports(schema, Collections.emptyMap());
                         requestBodyReport.setSchemaProperties(schemaReports);
-                        requestBodyReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
+                        String exampleExternalRef = getExampleExternalRef(mediaType.getValue());
+                        if (StringUtils.isNotEmpty(exampleExternalRef)) {
+                            requestBodyReport.setExampleExternalRef(exampleExternalRef);
+                        } else {
+                            requestBodyReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
+                        }
                     }
                     return requestBodyReport;
                 }).orElse(null);
@@ -315,7 +320,12 @@ public class OpenApiReportService {
             var mediaType = apiResponse.getContent().entrySet().iterator().next();
             var schema = mediaType.getValue().getSchema();
             apiResponseReport.setContentType(mediaType.getKey());
-            apiResponseReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
+            String exampleExternalRef = getExampleExternalRef(mediaType.getValue());
+            if (StringUtils.isNotEmpty(exampleExternalRef)) {
+                apiResponseReport.setExampleExternalRef(exampleExternalRef);
+            } else {
+                apiResponseReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
+            }
             var schemaReport = buildSchemaReport(schema);
             apiResponseReport.setSchema(schemaReport);
         }
@@ -345,6 +355,16 @@ public class OpenApiReportService {
             }
         }
         return mediaType.getExample();
+    }
+
+    private String getExampleExternalRef(MediaType mediaType) {
+        if (!CollectionUtils.isEmpty(mediaType.getExamples())) {
+            var example = mediaType.getExamples().values().iterator().next();
+            if (StringUtils.isNotEmpty(example.getExternalValue())) {
+                return example.getExternalValue();
+            }
+        }
+        return null;
     }
 
     private Object getExampleValueByKey(String key, OpenAPI openAPI) {
