@@ -30,6 +30,10 @@ public class MethodInfo {
      */
     private String description;
     /**
+     * Operation tags
+     */
+    private List<String> tags;
+    /**
      * Request body report
      */
     private RequestBodyReport requestBody;

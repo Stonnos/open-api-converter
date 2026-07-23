@@ -1,4 +1,5 @@
 app:
+  apiMethodsTitle: API methods
   templateLocation: classpath:templates/template.adoc
   validationRulesLocation: validation-rules.json
 server:

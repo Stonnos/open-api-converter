@@ -16,6 +16,12 @@ import org.springframework.validation.annotation.Validated;
 public class AppProperties {
 
     /**
+     * Api methods title
+     */
+    @NotEmpty(message = "Api methods title must be specified!")
+    private String apiMethodsTitle;
+
+    /**
      * Template location
      */
     @NotEmpty(message = "Template location must be specified!")

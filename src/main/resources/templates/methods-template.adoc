@@ -1,5 +1,7 @@
-<#list openApi.methods as method>
-== ${(method.description)!"API method"}
+<#list openApi.methods as tag, methods>
+== ${tag}
+<#list methods as method>
+=== ${(method.description)!"API method"}
 
 __${method.requestType}__ *${method.endpoint}* <#if method.summary??>- ${method.summary}</#if>
 
@@ -31,5 +33,5 @@ a|<#if security.scopes?has_content>
 <#include "request-parameters-template.adoc">
 
 <#include "api-responses-template.adoc">
-
+</#list>
 </#list>

@@ -17,6 +17,7 @@
 
 Настройки проекта находятся в файле application.yml
 
+* app.apiMethodsTitle - название заголовка (группы) для списка endpoint-ов, если не задана группировка по tags в описании схемы operation
 * app.templateLocation - путь к файлу с шаблоном отчета в формате adoc
 * app.validationRulesLocation - путь к файлу с конфигурацией правил для валидации Open API
 

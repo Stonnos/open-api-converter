@@ -3,6 +3,7 @@ package com.openapi.converter.model.report;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Open API report.
@@ -27,9 +28,9 @@ public class OpenApiReport {
      */
     private String email;
     /**
-     * Api methods list
+     * Api methods group by title
      */
-    private List<MethodInfo> methods;
+    private Map<String, List<MethodInfo>> methods;
     /**
      * Api components list
      */

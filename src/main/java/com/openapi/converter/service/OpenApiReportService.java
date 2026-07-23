@@ -2,6 +2,7 @@ package com.openapi.converter.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.openapi.converter.config.AppProperties;
 import com.openapi.converter.dto.openapi.ApiResponse;
 import com.openapi.converter.dto.openapi.Components;
 import com.openapi.converter.dto.openapi.Info;
@@ -57,17 +58,21 @@ public class OpenApiReportService {
     private static final int ALL_OF_SIZE = 2;
     private static final int CHILD_SCHEMA_IDX = 1;
 
+    private final AppProperties appProperties;
     private final OpenApiMapper openApiMapper;
     private final ObjectMapper exampleObjectMapper;
 
     /**
      * Constructor with parameters.
      *
+     * @param appProperties       - app properties
      * @param openApiMapper       - open api mapper
      * @param exampleObjectMapper example object mapper
      */
-    public OpenApiReportService(OpenApiMapper openApiMapper,
+    public OpenApiReportService(AppProperties appProperties,
+                                OpenApiMapper openApiMapper,
                                 @Qualifier("exampleObjectMapper") ObjectMapper exampleObjectMapper) {
+        this.appProperties = appProperties;
         this.openApiMapper = openApiMapper;
         this.exampleObjectMapper = exampleObjectMapper;
     }
@@ -87,7 +92,8 @@ public class OpenApiReportService {
         var methods = buildMethodsReport(openAPI);
         var components = buildComponents(openAPI);
         var securitySchemes = buildSecuritySchemesReports(openAPI);
-        openApiReport.setMethods(methods);
+        var groupedMethods = methods.stream().collect(Collectors.groupingBy(this::getMethodGroupTitle));
+        openApiReport.setMethods(groupedMethods);
         openApiReport.setComponents(components);
         openApiReport.setSecuritySchemes(securitySchemes);
         log.info("Open api report [{}] has been built", title);
@@ -154,7 +160,7 @@ public class OpenApiReportService {
                     .stream()
                     .filter(fieldReport -> fieldReports.stream().noneMatch(
                             f -> f.getFieldName().equals(fieldReport.getFieldName())))
-                    .collect(Collectors.toList());
+                    .toList();
             fieldReports.addAll(nextFields);
         }
         var requiredFields = Optional.ofNullable(schema.getRequired()).orElse(Collections.emptyList());
@@ -164,7 +170,7 @@ public class OpenApiReportService {
     }
 
     private Stack<Schema> getAllParentSchema(Schema schema, Map<String, Schema> schemas) {
-        Schema current = schema.getAllOf().iterator().next();
+        Schema current = schema.getAllOf().getFirst();
         Stack<Schema> stack = new Stack<>();
         do {
             Schema nextParentSchema = getNextParentSchema(current, schemas);
@@ -173,7 +179,7 @@ public class OpenApiReportService {
             }
             if (!CollectionUtils.isEmpty(nextParentSchema.getAllOf()) &&
                     nextParentSchema.getAllOf().size() >= ALL_OF_SIZE) {
-                current = nextParentSchema.getAllOf().iterator().next();
+                current = nextParentSchema.getAllOf().getFirst();
             } else {
                 current = null;
             }
@@ -250,6 +256,7 @@ public class OpenApiReportService {
                 .endpoint(entry.getKey())
                 .summary(operation.getSummary())
                 .description(operation.getDescription())
+                .tags(operation.getTags())
                 .requestBody(requestBodyModel)
                 .requestParameters(requestParameters)
                 .apiResponses(apiResponses)
@@ -412,5 +419,12 @@ public class OpenApiReportService {
         return schema.getOneOf().stream()
                 .map(this::getBodyRef)
                 .collect(Collectors.toList());
+    }
+
+    private String getMethodGroupTitle(MethodInfo methodInfo) {
+        if (CollectionUtils.isEmpty(methodInfo.getTags())) {
+            return appProperties.getApiMethodsTitle();
+        }
+        return methodInfo.getTags().getFirst();
     }
 }
