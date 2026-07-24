@@ -14,9 +14,8 @@
 </#if>
 a|
 <#if method.requestBody.exampleExternalRef??>
-link:${method.requestBody.exampleExternalRef}[Example]
-</#if>
-<#if method.requestBody.example??>
+link:${method.requestBody.exampleExternalRef}[${method.requestBody.exampleExternalRefKey}]
+<#elseif method.requestBody.example??>
 [source,json]
 ----
 ${method.requestBody.example}

@@ -32,6 +32,10 @@ public class RequestBodyReport {
      */
     private String exampleExternalRef;
     /**
+     * Example external reference key
+     */
+    private String exampleExternalRefKey;
+    /**
      * Field properties (used for multipart form data requests)
      */
     private List<FieldReport> schemaProperties;

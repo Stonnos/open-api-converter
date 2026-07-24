@@ -293,6 +293,9 @@ public class OpenApiReportService {
                         requestBodyReport.setSchemaProperties(schemaReports);
                         String exampleExternalRef = getExampleExternalRef(mediaType.getValue());
                         if (StringUtils.isNotEmpty(exampleExternalRef)) {
+                            String exampleExternalRefKey =
+                                    StringUtils.substringAfterLast(exampleExternalRef, SLASH_SEPARATOR);
+                            requestBodyReport.setExampleExternalRefKey(exampleExternalRefKey);
                             requestBodyReport.setExampleExternalRef(exampleExternalRef);
                         } else {
                             requestBodyReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
@@ -322,6 +325,8 @@ public class OpenApiReportService {
             apiResponseReport.setContentType(mediaType.getKey());
             String exampleExternalRef = getExampleExternalRef(mediaType.getValue());
             if (StringUtils.isNotEmpty(exampleExternalRef)) {
+                String exampleExternalRefKey = StringUtils.substringAfterLast(exampleExternalRef, SLASH_SEPARATOR);
+                apiResponseReport.setExampleExternalRefKey(exampleExternalRefKey);
                 apiResponseReport.setExampleExternalRef(exampleExternalRef);
             } else {
                 apiResponseReport.setExample(getExampleAsJsonString(mediaType.getValue(), openAPI));
@@ -361,7 +366,7 @@ public class OpenApiReportService {
         if (!CollectionUtils.isEmpty(mediaType.getExamples())) {
             var example = mediaType.getExamples().values().iterator().next();
             if (StringUtils.isNotEmpty(example.getExternalValue())) {
-                return example.getExternalValue();
+                return String.format(".%s", example.getExternalValue());
             }
         }
         return null;

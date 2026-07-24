@@ -31,6 +31,10 @@ public class ApiResponseReport {
      */
     private String exampleExternalRef;
     /**
+     * Example external reference key
+     */
+    private String exampleExternalRefKey;
+    /**
      * Schema report
      */
     private SchemaReport schema;
